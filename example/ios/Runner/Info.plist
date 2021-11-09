@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>example</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>$(FLUTTER_BUILD_NAME)</string>
+	<key>CFBundleSignature</key>
+	<string>????</string>
+	<key>CFBundleVersion</key>
+	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<key>LSRequiresIPhoneOS</key>
+	<true/>
+	<key>UILaunchStoryboardName</key>
+	<string>LaunchScreen</string>
+	<key>UIMainStoryboardFile</key>
+	<string>Main</string>
+	<key>UISupportedInterfaceOrientations</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	<key>UISupportedInterfaceOrientations~ipad</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	<key>UIViewControllerBasedStatusBarAppearance</key>
+	<false/>
+	<key>NSAppleMusicUsageDescription</key>
+    <string>We need Apple music use permission</string>
+    <key>NSCalendarsUsageDescription</key>
+    <string>We need calendar events use permission</string>
+    <key>NSCameraUsageDescription</key>
+    <string>We need camera permission so you can make photos and share it with other users.</string>
+    <key>NSContactsUsageDescription</key>
+    <string>We need contact use permission</string>
+    <key>NSFaceIDUsageDescription</key>
+    <string>We need FaceID permission to keep you logged in.</string>
+    <key>NSLocationAlwaysUsageDescription</key>
+    <string>We need access to location when in the background for showing your distance with other users.</string>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>We need access to location when open and in the background for showing your distance with other users.</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>We need microphone permission for adding story.</string>
+    <key>NSMotionUsageDescription</key>
+    <string>Gabby Health motion use</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>We need photo permission so you can upload photos from your gallery and share it with other users.</string>
+    <key>NSSpeechRecognitionUsageDescription</key>
+    <string>We need speech use permission</string>
+</dict>
+</plist>
