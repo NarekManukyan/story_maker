@@ -404,7 +404,7 @@ class _StoryMakerState extends State<StoryMaker> {
   Future<void> _onDone() async {
     final boundary = previewContainer.currentContext!.findRenderObject()
         as RenderRepaintBoundary?;
-    final image = await boundary!.toImage();
+    final image = await boundary!.toImage(pixelRatio: 3);
     final directory = (await getApplicationDocumentsDirectory()).path;
     final byteData = (await image.toByteData(format: ui.ImageByteFormat.png))!;
     final pngBytes = byteData.buffer.asUint8List();
