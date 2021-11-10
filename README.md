@@ -2,8 +2,8 @@
 
 A package for creating instagram like story, you can use this package to edit images and make it story ready by adding other contents over it like text and gradients.
 
-![GIF 1](https://raw.githubusercontent.com/NarekManukyan/story_maker/master/showcase1.gif)
-![GIF 2](https://raw.githubusercontent.com/NarekManukyan/story_maker/master/showcase2.gif)
+![GIF 1](https://github.com/NarekManukyan/story_maker/raw/master/showcase1.GIF)
+![GIF 2](https://github.com/NarekManukyan/story_maker/raw/master/showcase2.GIF)
 
 ## Getting Started
 
@@ -87,3 +87,5 @@ class _MyAppState extends State<MyApp> {
 - [ ] Animations for text
 - [ ] Export GIF
 
+
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/narek.manukyan)
