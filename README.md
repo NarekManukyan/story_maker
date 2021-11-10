@@ -87,3 +87,5 @@ class _MyAppState extends State<MyApp> {
 - [ ] Animations for text
 - [ ] Export GIF
 
+
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/narek.manukyan)
