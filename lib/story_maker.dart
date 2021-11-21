@@ -101,166 +101,179 @@ class _StoryMakerState extends State<StoryMaker> {
       child: Scaffold(
         resizeToAvoidBottomInset: false,
         backgroundColor: Colors.black,
-        body: Column(
+        body: Stack(
+          clipBehavior: Clip.antiAlias,
           children: [
-            Expanded(
-              child: GestureDetector(
-                onScaleStart: _onScaleStart,
-                onScaleUpdate: _onScaleUpdate,
-                onTap: _onScreenTap,
-                child: Stack(
-                  children: [
-                    RepaintBoundary(
-                      key: previewContainer,
-                      child: Stack(
-                        children: [
-                          Visibility(
-                            visible: _stackData[0].type == ItemType.IMAGE,
-                            child: Center(
-                              child: PhotoView(
-                                enableRotation: true,
-                                backgroundDecoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    begin: FractionalOffset.topLeft,
-                                    end: FractionalOffset.centerRight,
-                                    colors: gradientColors[
-                                        _selectedBackgroundGradient],
+            Positioned(
+              top: context.topPadding,
+              left: 0,
+              right: 0,
+              child: ClipRect(
+                child: AspectRatio(
+                  aspectRatio: 9 / 16,
+                  child: GestureDetector(
+                    onScaleStart: _onScaleStart,
+                    onScaleUpdate: _onScaleUpdate,
+                    onTap: _onScreenTap,
+                    child: Stack(
+                      children: [
+                        RepaintBoundary(
+                          key: previewContainer,
+                          child: Stack(
+                            children: [
+                              Visibility(
+                                visible: _stackData[0].type == ItemType.IMAGE,
+                                child: Center(
+                                  child: PhotoView(
+                                    enableRotation: true,
+                                    backgroundDecoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        begin: FractionalOffset.topLeft,
+                                        end: FractionalOffset.centerRight,
+                                        colors: gradientColors[
+                                            _selectedBackgroundGradient],
+                                      ),
+                                    ),
+                                    maxScale: 2.0,
+                                    enablePanAlways: false,
+                                    imageProvider: FileImage(
+                                      File(_stackData[0].value),
+                                    ),
                                   ),
-                                ),
-                                maxScale: 2.0,
-                                // tightMode: true,
-                                enablePanAlways: false,
-                                imageProvider: FileImage(
-                                  File(_stackData[0].value),
                                 ),
                               ),
-                            ),
-                          ),
-                          ..._stackData
-                              .map(
-                                (editableItem) => OverlayItemWidget(
-                                  editableItem: editableItem,
-                                  onItemTap: () {
-                                    _onOverlayItemTap(editableItem);
-                                  },
-                                  onPointerDown: (details) {
-                                    _onOverlayItemPointerDown(
-                                      editableItem,
-                                      details,
-                                    );
-                                  },
-                                  onPointerUp: (details) {
-                                    _onOverlayItemPointerUp(
-                                      editableItem,
-                                      details,
-                                    );
-                                  },
-                                  onPointerMove: (details) {
-                                    _onOverlayItemPointerMove(
-                                      editableItem,
-                                      details,
-                                    );
-                                  },
-                                ),
-                              )
-                              .toList(),
-                        ],
-                      ),
-                    ),
-                    AnimatedSwitcher(
-                      duration: widget.animationsDuration,
-                      child: !_isTextInput
-                          ? const SizedBox()
-                          : Container(
-                              height: context.height,
-                              width: context.width,
-                              color: Colors.black.withOpacity(0.4),
-                              child: Stack(
-                                children: [
-                                  TextFieldWidget(
-                                    controller: _editingController,
-                                    onChanged: _onTextChange,
-                                    onSubmit: _onTextSubmit,
-                                    fontSize: _selectedFontSize,
-                                    fontFamilyIndex: _selectedFontFamily,
-                                    textColor: _selectedTextColor,
-                                    backgroundColorIndex:
-                                        _selectedTextBackgroundGradient,
-                                  ),
-                                  SizeSliderWidget(
-                                    animationsDuration:
-                                        widget.animationsDuration,
-                                    selectedValue: _selectedFontSize,
-                                    onChanged: (input) {
-                                      setState(
-                                        () {
-                                          _selectedFontSize = input;
-                                        },
-                                      );
-                                    },
-                                  ),
-                                  if (!_isColorPickerSelected)
-                                    FontFamilySelectWidget(
-                                      animationsDuration:
-                                          widget.animationsDuration,
-                                      pageController: _familyPageController,
-                                      selectedFamilyIndex: _selectedFontFamily,
-                                      onPageChanged: _onFamilyChange,
-                                      onTap: (index) {
-                                        _onStyleChange(index);
+                              ..._stackData
+                                  .map(
+                                    (editableItem) => OverlayItemWidget(
+                                      editableItem: editableItem,
+                                      onItemTap: () {
+                                        _onOverlayItemTap(editableItem);
                                       },
-                                    )
-                                  else
-                                    TextColorSelectWidget(
-                                      animationsDuration:
-                                          widget.animationsDuration,
-                                      pageController: _textColorsPageController,
-                                      selectedTextColor: _selectedTextColor,
-                                      onPageChanged: _onTextColorChange,
-                                      onTap: (index) {
-                                        _onColorChange(index);
+                                      onPointerDown: (details) {
+                                        _onOverlayItemPointerDown(
+                                          editableItem,
+                                          details,
+                                        );
+                                      },
+                                      onPointerUp: (details) {
+                                        _onOverlayItemPointerUp(
+                                          editableItem,
+                                          details,
+                                        );
+                                      },
+                                      onPointerMove: (details) {
+                                        _onOverlayItemPointerMove(
+                                          editableItem,
+                                          details,
+                                        );
                                       },
                                     ),
-                                ],
-                              ),
-                            ),
+                                  )
+                                  .toList(),
+                            ],
+                          ),
+                        ),
+                        AnimatedSwitcher(
+                          duration: widget.animationsDuration,
+                          child: !_isTextInput
+                              ? const SizedBox()
+                              : Container(
+                                  height: context.height,
+                                  width: context.width,
+                                  color: Colors.black.withOpacity(0.4),
+                                  child: Stack(
+                                    children: [
+                                      TextFieldWidget(
+                                        controller: _editingController,
+                                        onChanged: _onTextChange,
+                                        onSubmit: _onTextSubmit,
+                                        fontSize: _selectedFontSize,
+                                        fontFamilyIndex: _selectedFontFamily,
+                                        textColor: _selectedTextColor,
+                                        backgroundColorIndex:
+                                            _selectedTextBackgroundGradient,
+                                      ),
+                                      SizeSliderWidget(
+                                        animationsDuration:
+                                            widget.animationsDuration,
+                                        selectedValue: _selectedFontSize,
+                                        onChanged: (input) {
+                                          setState(
+                                            () {
+                                              _selectedFontSize = input;
+                                            },
+                                          );
+                                        },
+                                      ),
+                                      if (!_isColorPickerSelected)
+                                        FontFamilySelectWidget(
+                                          animationsDuration:
+                                              widget.animationsDuration,
+                                          pageController: _familyPageController,
+                                          selectedFamilyIndex:
+                                              _selectedFontFamily,
+                                          onPageChanged: _onFamilyChange,
+                                          onTap: (index) {
+                                            _onStyleChange(index);
+                                          },
+                                        )
+                                      else
+                                        TextColorSelectWidget(
+                                          animationsDuration:
+                                              widget.animationsDuration,
+                                          pageController:
+                                              _textColorsPageController,
+                                          selectedTextColor: _selectedTextColor,
+                                          onPageChanged: _onTextColorChange,
+                                          onTap: (index) {
+                                            _onColorChange(index);
+                                          },
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                        ),
+                        BackgroundGradientSelectorWidget(
+                          isTextInput: _isTextInput,
+                          isBackgroundColorPickerSelected:
+                              _isBackgroundColorPickerSelected,
+                          inAction: _inAction,
+                          animationsDuration: widget.animationsDuration,
+                          gradientsPageController: _gradientsPageController,
+                          onPageChanged: _onChangeBackgroundGradient,
+                          onItemTap: _onBackgroundGradientTap,
+                          selectedGradientIndex: _selectedBackgroundGradient,
+                        ),
+                        TopToolsWidget(
+                          isTextInput: _isTextInput,
+                          selectedBackgroundGradientIndex:
+                              _selectedBackgroundGradient,
+                          animationsDuration: widget.animationsDuration,
+                          onPickerTap: _onToggleBackgroundGradientPicker,
+                          onScreenTap: _onScreenTap,
+                          selectedTextBackgroundGradientIndex:
+                              _selectedTextBackgroundGradient,
+                          onToggleTextColorPicker: _onToggleTextColorSelector,
+                          onChangeTextBackground: _onChangeTextBackground,
+                          activeItem: _activeItem,
+                        ),
+                        RemoveWidget(
+                          isTextInput: _isTextInput,
+                          animationsDuration: widget.animationsDuration,
+                          activeItem: _activeItem,
+                          isDeletePosition: _isDeletePosition,
+                        ),
+                      ],
                     ),
-                    BackgroundGradientSelectorWidget(
-                      isTextInput: _isTextInput,
-                      isBackgroundColorPickerSelected:
-                          _isBackgroundColorPickerSelected,
-                      inAction: _inAction,
-                      animationsDuration: widget.animationsDuration,
-                      gradientsPageController: _gradientsPageController,
-                      onPageChanged: _onChangeBackgroundGradient,
-                      onItemTap: _onBackgroundGradientTap,
-                      selectedGradientIndex: _selectedBackgroundGradient,
-                    ),
-                    TopToolsWidget(
-                      isTextInput: _isTextInput,
-                      selectedBackgroundGradientIndex:
-                          _selectedBackgroundGradient,
-                      animationsDuration: widget.animationsDuration,
-                      onPickerTap: _onToggleBackgroundGradientPicker,
-                      onScreenTap: _onScreenTap,
-                      selectedTextBackgroundGradientIndex:
-                          _selectedTextBackgroundGradient,
-                      onToggleTextColorPicker: _onToggleTextColorSelector,
-                      onChangeTextBackground: _onChangeTextBackground,
-                      activeItem: _activeItem,
-                    ),
-                    RemoveWidget(
-                      isTextInput: _isTextInput,
-                      animationsDuration: widget.animationsDuration,
-                      activeItem: _activeItem,
-                      isDeletePosition: _isDeletePosition,
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),
-            FooterToolsWidget(
-              onDone: _onDone,
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: FooterToolsWidget(
+                onDone: _onDone,
+              ),
             ),
           ],
         ),

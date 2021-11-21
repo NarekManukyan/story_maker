@@ -23,7 +23,7 @@ class TextColorSelectWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return AnimatedPositioned(
       duration: animationsDuration,
-      bottom: MediaQuery.of(context).viewInsets.bottom + 12 - 120,
+      bottom: MediaQuery.of(context).viewInsets.bottom - 92,
       right: 0,
       left: 0,
       child: Container(
@@ -34,6 +34,9 @@ class TextColorSelectWidget extends StatelessWidget {
           controller: pageController,
           itemCount: defaultColors.length,
           onPageChanged: onPageChanged,
+          physics: const BouncingScrollPhysics(),
+          allowImplicitScrolling: true,
+          pageSnapping: false,
           itemBuilder: (context, index) {
             return GestureDetector(
               onTap: () {

@@ -24,7 +24,7 @@ class FontFamilySelectWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return AnimatedPositioned(
       duration: animationsDuration,
-      bottom: context.media.viewInsets.bottom + 12 - 120,
+      bottom: context.media.viewInsets.bottom - 92,
       right: 0,
       left: 0,
       child: Container(
@@ -35,6 +35,9 @@ class FontFamilySelectWidget extends StatelessWidget {
           controller: pageController,
           itemCount: fontFamilyList.length,
           onPageChanged: onPageChanged,
+          physics: const BouncingScrollPhysics(),
+          allowImplicitScrolling: true,
+          pageSnapping: false,
           itemBuilder: (context, index) {
             return GestureDetector(
               onTap: () {

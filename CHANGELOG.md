@@ -5,3 +5,7 @@
 ## [1.0.1] - 10/11/2021.
 
 * Improved the quality of the edited image.
+
+## [1.0.2] - 21/11/2021.
+
+* Fixed aspect ratio issues.

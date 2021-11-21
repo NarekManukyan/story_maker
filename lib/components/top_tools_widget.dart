@@ -36,7 +36,7 @@ class TopToolsWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     if (isTextInput) {
       return Positioned(
-        top: 50,
+        top: 0,
         child: Container(
           width: context.width,
           padding: const EdgeInsets.all(8),
@@ -78,14 +78,19 @@ class TopToolsWidget extends StatelessWidget {
     }
 
     return Positioned(
-      top: 50,
+      top: 12,
       right: 20,
+      left: 20,
       child: AnimatedSwitcher(
         duration: animationsDuration,
         child: activeItem != null
             ? const SizedBox()
             : Row(
                 children: [
+                  const BackButton(
+                    color: Colors.white,
+                  ),
+                  const Spacer(),
                   GestureDetector(
                     onTap: onPickerTap,
                     child: Container(

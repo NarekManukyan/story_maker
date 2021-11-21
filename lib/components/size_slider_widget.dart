@@ -19,7 +19,7 @@ class SizeSliderWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return AnimatedPositioned(
       duration: animationsDuration,
-      top: context.height / 2 - 96 - 32,
+      top: context.height * .5 - context.media.viewInsets.bottom * .5,
       left: -100,
       child: Transform(
         alignment: FractionalOffset.center,

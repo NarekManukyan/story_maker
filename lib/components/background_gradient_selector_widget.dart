@@ -48,6 +48,9 @@ class BackgroundGradientSelectorWidget extends StatelessWidget {
             controller: gradientsPageController,
             itemCount: gradientColors.length,
             onPageChanged: onPageChanged,
+            physics: const BouncingScrollPhysics(),
+            allowImplicitScrolling: true,
+            pageSnapping: false,
             itemBuilder: (context, index) {
               return GestureDetector(
                 onTap: () => onItemTap(index),
