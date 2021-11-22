@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../constants/font_colors.dart';
+import '../extensions/context_extension.dart';
 
 class TextColorSelectWidget extends StatelessWidget {
   final Duration animationsDuration;
@@ -23,12 +24,12 @@ class TextColorSelectWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return AnimatedPositioned(
       duration: animationsDuration,
-      bottom: MediaQuery.of(context).viewInsets.bottom - 92,
+      bottom: context.media.viewInsets.bottom + 8,
       right: 0,
       left: 0,
       child: Container(
         height: 28,
-        width: MediaQuery.of(context).size.width,
+        width: context.width,
         alignment: Alignment.center,
         child: PageView.builder(
           controller: pageController,

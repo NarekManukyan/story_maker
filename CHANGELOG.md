@@ -9,3 +9,7 @@
 ## [1.0.2] - 21/11/2021.
 
 * Fixed aspect ratio issues.
+
+## [1.0.3] - 23/11/2021.
+
+* Fixed widgets positions for small devices.

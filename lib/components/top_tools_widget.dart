@@ -36,7 +36,7 @@ class TopToolsWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     if (isTextInput) {
       return Positioned(
-        top: 0,
+        top: context.topPadding,
         child: Container(
           width: context.width,
           padding: const EdgeInsets.all(8),
@@ -78,7 +78,7 @@ class TopToolsWidget extends StatelessWidget {
     }
 
     return Positioned(
-      top: 12,
+      top: context.topPadding + 12,
       right: 20,
       left: 20,
       child: AnimatedSwitcher(

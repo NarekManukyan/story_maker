@@ -37,12 +37,12 @@ class BackgroundGradientSelectorWidget extends StatelessWidget {
       visible: isVisible,
       child: AnimatedPositioned(
         duration: animationsDuration,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 12,
+        bottom: 80 + context.bottomPadding,
         right: 0,
         left: 0,
         child: Container(
           height: context.width * .175,
-          width: MediaQuery.of(context).size.width,
+          width: context.width,
           alignment: Alignment.center,
           child: PageView.builder(
             controller: gradientsPageController,

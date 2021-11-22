@@ -30,7 +30,8 @@ class TextFieldWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Positioned(
       left: 36,
-      bottom: MediaQuery.of(context).viewInsets.bottom + 32,
+      top: 0,
+      bottom: 96,
       child: Center(
         child: Container(
           padding: EdgeInsets.zero,

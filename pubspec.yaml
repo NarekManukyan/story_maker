@@ -1,6 +1,6 @@
 name: story_maker
 description: A package for creating instagram like story, you can use this package to edit images and make it story ready by adding other contents over it like text.
-version: 1.0.2
+version: 1.0.3
 homepage: https://github.com/NarekManukyan/story_maker
 
 environment:

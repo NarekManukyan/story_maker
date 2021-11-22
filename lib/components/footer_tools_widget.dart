@@ -24,43 +24,46 @@ class FooterToolsWidget extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            ElevatedButton(
-              onPressed: onDone,
-              style: ButtonStyle(
-                shape: MaterialStateProperty.all(
-                  const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(18),
+            SizedBox(
+              height: 36,
+              child: ElevatedButton(
+                onPressed: onDone,
+                style: ButtonStyle(
+                  shape: MaterialStateProperty.all(
+                    const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(18),
+                      ),
                     ),
                   ),
+                  shadowColor: MaterialStateProperty.all(Colors.white),
+                  backgroundColor: MaterialStateProperty.all(Colors.white),
                 ),
-                shadowColor: MaterialStateProperty.all(Colors.white),
-                backgroundColor: MaterialStateProperty.all(Colors.white),
-              ),
-              child: doneButtonChild ??
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Row(
-                        children: const [
-                          SizedBox(width: 4),
-                          Text(
-                            'Add to story',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 12,
+                child: doneButtonChild ??
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Row(
+                          children: const [
+                            SizedBox(width: 4),
+                            Text(
+                              'Add to story',
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 12,
+                              ),
                             ),
-                          ),
-                          SizedBox(width: 4),
-                          Icon(
-                            CupertinoIcons.forward,
-                            color: Colors.black,
-                            size: 18,
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+                            SizedBox(width: 4),
+                            Icon(
+                              CupertinoIcons.forward,
+                              color: Colors.black,
+                              size: 18,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+              ),
             ),
           ],
         ),

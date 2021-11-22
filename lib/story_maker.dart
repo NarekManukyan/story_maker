@@ -205,69 +205,64 @@ class _StoryMakerState extends State<StoryMaker> {
                                           );
                                         },
                                       ),
-                                      if (!_isColorPickerSelected)
-                                        FontFamilySelectWidget(
-                                          animationsDuration:
-                                              widget.animationsDuration,
-                                          pageController: _familyPageController,
-                                          selectedFamilyIndex:
-                                              _selectedFontFamily,
-                                          onPageChanged: _onFamilyChange,
-                                          onTap: (index) {
-                                            _onStyleChange(index);
-                                          },
-                                        )
-                                      else
-                                        TextColorSelectWidget(
-                                          animationsDuration:
-                                              widget.animationsDuration,
-                                          pageController:
-                                              _textColorsPageController,
-                                          selectedTextColor: _selectedTextColor,
-                                          onPageChanged: _onTextColorChange,
-                                          onTap: (index) {
-                                            _onColorChange(index);
-                                          },
-                                        ),
                                     ],
                                   ),
                                 ),
-                        ),
-                        BackgroundGradientSelectorWidget(
-                          isTextInput: _isTextInput,
-                          isBackgroundColorPickerSelected:
-                              _isBackgroundColorPickerSelected,
-                          inAction: _inAction,
-                          animationsDuration: widget.animationsDuration,
-                          gradientsPageController: _gradientsPageController,
-                          onPageChanged: _onChangeBackgroundGradient,
-                          onItemTap: _onBackgroundGradientTap,
-                          selectedGradientIndex: _selectedBackgroundGradient,
-                        ),
-                        TopToolsWidget(
-                          isTextInput: _isTextInput,
-                          selectedBackgroundGradientIndex:
-                              _selectedBackgroundGradient,
-                          animationsDuration: widget.animationsDuration,
-                          onPickerTap: _onToggleBackgroundGradientPicker,
-                          onScreenTap: _onScreenTap,
-                          selectedTextBackgroundGradientIndex:
-                              _selectedTextBackgroundGradient,
-                          onToggleTextColorPicker: _onToggleTextColorSelector,
-                          onChangeTextBackground: _onChangeTextBackground,
-                          activeItem: _activeItem,
-                        ),
-                        RemoveWidget(
-                          isTextInput: _isTextInput,
-                          animationsDuration: widget.animationsDuration,
-                          activeItem: _activeItem,
-                          isDeletePosition: _isDeletePosition,
                         ),
                       ],
                     ),
                   ),
                 ),
               ),
+            ),
+            if (_isTextInput)
+              if (!_isColorPickerSelected)
+                FontFamilySelectWidget(
+                  animationsDuration: widget.animationsDuration,
+                  pageController: _familyPageController,
+                  selectedFamilyIndex: _selectedFontFamily,
+                  onPageChanged: _onFamilyChange,
+                  onTap: (index) {
+                    _onStyleChange(index);
+                  },
+                )
+              else
+                TextColorSelectWidget(
+                  animationsDuration: widget.animationsDuration,
+                  pageController: _textColorsPageController,
+                  selectedTextColor: _selectedTextColor,
+                  onPageChanged: _onTextColorChange,
+                  onTap: (index) {
+                    _onColorChange(index);
+                  },
+                ),
+            BackgroundGradientSelectorWidget(
+              isTextInput: _isTextInput,
+              isBackgroundColorPickerSelected: _isBackgroundColorPickerSelected,
+              inAction: _inAction,
+              animationsDuration: widget.animationsDuration,
+              gradientsPageController: _gradientsPageController,
+              onPageChanged: _onChangeBackgroundGradient,
+              onItemTap: _onBackgroundGradientTap,
+              selectedGradientIndex: _selectedBackgroundGradient,
+            ),
+            TopToolsWidget(
+              isTextInput: _isTextInput,
+              selectedBackgroundGradientIndex: _selectedBackgroundGradient,
+              animationsDuration: widget.animationsDuration,
+              onPickerTap: _onToggleBackgroundGradientPicker,
+              onScreenTap: _onScreenTap,
+              selectedTextBackgroundGradientIndex:
+                  _selectedTextBackgroundGradient,
+              onToggleTextColorPicker: _onToggleTextColorSelector,
+              onChangeTextBackground: _onChangeTextBackground,
+              activeItem: _activeItem,
+            ),
+            RemoveWidget(
+              isTextInput: _isTextInput,
+              animationsDuration: widget.animationsDuration,
+              activeItem: _activeItem,
+              isDeletePosition: _isDeletePosition,
             ),
             Align(
               alignment: Alignment.bottomCenter,
