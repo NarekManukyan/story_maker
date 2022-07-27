@@ -41,21 +41,21 @@ class _MyAppState extends State<MyApp> {
                   Permission.storage,
                 ].request();
                 final picker = ImagePicker();
-                await picker
-                    .pickImage(source: ImageSource.gallery)
-                    .then((file) async {
-                  final File editedFile = await Navigator.of(context).push(
+                final pickedFile =
+                    await picker.pickImage(source: ImageSource.gallery);
+                if (pickedFile != null) {
+                  final editedFile = await Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (context) => StoryMaker(
-                        filePath: file!.path,
+                        filePath: pickedFile.path,
                       ),
                     ),
                   );
                   setState(() {
                     image = editedFile;
                   });
-                  print('editedFile: ${image!.path}');
-                });
+                  print('editedFile: ${image?.path}');
+                }
               },
               child: const Text('Pick Image'),
             ),

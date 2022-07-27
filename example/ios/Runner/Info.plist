@@ -63,5 +63,7 @@
     <string>We need photo permission so you can upload photos from your gallery and share it with other users.</string>
     <key>NSSpeechRecognitionUsageDescription</key>
     <string>We need speech use permission</string>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
 </dict>
 </plist>

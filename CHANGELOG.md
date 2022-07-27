@@ -13,3 +13,7 @@
 ## [1.0.3] - 23/11/2021.
 
 * Fixed widgets positions for small devices.
+## [1.0.4] - 27/07/2022.
+
+* Updated libraries.
+* Fixed some bugs.

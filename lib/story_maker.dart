@@ -3,11 +3,9 @@ library story_maker;
 import 'dart:io';
 import 'dart:ui' as ui;
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:photo_view/photo_view.dart';
 
@@ -43,7 +41,7 @@ class StoryMaker extends StatefulWidget {
 }
 
 class _StoryMakerState extends State<StoryMaker> {
-  static GlobalKey previewContainer = GlobalKey();
+  GlobalKey previewContainer = GlobalKey();
   EditableItem? _activeItem;
   Offset _initPos = const Offset(0, 0);
   Offset _currentPos = const Offset(0, 0);
@@ -60,6 +58,7 @@ class _StoryMakerState extends State<StoryMaker> {
   bool _isDeletePosition = false;
   bool _isColorPickerSelected = false;
   bool _isBackgroundColorPickerSelected = false;
+  bool _isLoading = false;
   late PageController _familyPageController;
   late PageController _textColorsPageController;
   late PageController _gradientsPageController;
@@ -268,6 +267,8 @@ class _StoryMakerState extends State<StoryMaker> {
               alignment: Alignment.bottomCenter,
               child: FooterToolsWidget(
                 onDone: _onDone,
+                doneButtonChild: widget.doneButtonChild,
+                isLoading: _isLoading,
               ),
             ),
           ],
@@ -412,15 +413,17 @@ class _StoryMakerState extends State<StoryMaker> {
   Future<void> _onDone() async {
     final boundary = previewContainer.currentContext!.findRenderObject()
         as RenderRepaintBoundary?;
+    _isLoading = true;
+    setState(() {});
     final image = await boundary!.toImage(pixelRatio: 3);
     final directory = (await getApplicationDocumentsDirectory()).path;
     final byteData = (await image.toByteData(format: ui.ImageByteFormat.png))!;
     final pngBytes = byteData.buffer.asUint8List();
     final imgFile = File('$directory/${DateTime.now()}.png');
-    await imgFile.writeAsBytes(pngBytes).then((value) {
-      // done: return imgFile
-      Navigator.of(context).pop(imgFile);
-    });
+    await imgFile.writeAsBytes(pngBytes);
+    _isLoading = false;
+    setState(() {});
+    Navigator.of(context).pop(imgFile);
   }
 
   void _onSubmitText() {
