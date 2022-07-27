@@ -11,7 +11,7 @@ Add this to your package's pubspec.yaml file:
 
 ```yaml
 dependencies:
-  story_maker: ^1.0.2
+  story_maker: ^1.0.4
 ```
 
 ## Example
