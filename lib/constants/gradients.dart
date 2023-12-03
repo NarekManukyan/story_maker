@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 
+/// A list of gradient colors.
+///
+/// This list is used throughout the application where a predefined set of gradient colors is required.
+/// Each gradient is represented as a list of two Colors, defining the start and end points of the gradient.
+/// The gradients in this list can be used for various purposes, such as setting the background of a container.
 const List<List<Color>> gradientColors = [
   [Colors.transparent, Colors.transparent],
   [Color.fromRGBO(31, 179, 237, 1), Color.fromRGBO(17, 106, 197, 1)],

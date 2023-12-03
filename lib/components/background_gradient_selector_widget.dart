@@ -4,21 +4,47 @@ import 'package:flutter/material.dart';
 import '../constants/gradients.dart';
 import '../extensions/context_extension.dart';
 
+/// A widget for selecting a background gradient.
+///
+/// This widget is a part of the UI where the user can select a gradient to be used as a background.
+/// It is a stateless widget that takes several parameters to control its behavior and appearance.
+/// It uses a PageView.builder to display a list of available gradients, and the user can select one by tapping on it.
 class BackgroundGradientSelectorWidget extends StatelessWidget {
+  /// Indicates whether the widget is in text input mode.
   final bool isTextInput;
+
+  /// Indicates whether the background color picker is selected.
   final bool isBackgroundColorPickerSelected;
+
+  /// The duration of animations within the widget.
   final Duration animationsDuration;
+
+  /// A callback function that is called when the page changes.
   final Function(int item) onPageChanged;
+
+  /// A callback function that is called when an item is tapped.
   final Function(int item) onItemTap;
+
+  /// Indicates whether the widget is in action.
   final bool inAction;
+
+  /// The controller for the PageView of gradients.
   final PageController gradientsPageController;
+
+  /// The index of the currently selected gradient.
   final int selectedGradientIndex;
 
+  /// Determines whether the widget is visible.
+  ///
+  /// The widget is visible if the background color picker is selected, and the widget is not in text input mode or in action.
   bool get isVisible =>
       isBackgroundColorPickerSelected && !isTextInput && !inAction;
 
+  /// Creates an instance of the widget.
+  ///
+  /// All parameters are required and must not be null.
   const BackgroundGradientSelectorWidget({
-    Key? key,
+    super.key,
     required this.isTextInput,
     required this.isBackgroundColorPickerSelected,
     required this.inAction,
@@ -27,8 +53,11 @@ class BackgroundGradientSelectorWidget extends StatelessWidget {
     required this.onPageChanged,
     required this.onItemTap,
     required this.selectedGradientIndex,
-  }) : super(key: key);
+  });
 
+  /// Describes the part of the user interface represented by this widget.
+  ///
+  /// The framework calls this method when this widget is inserted into the tree in a given BuildContext and when the dependencies of this widget change.
   @override
   Widget build(BuildContext context) {
     return Visibility(

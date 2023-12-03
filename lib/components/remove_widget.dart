@@ -3,21 +3,39 @@ import 'package:flutter/material.dart';
 import '../extensions/context_extension.dart';
 import '../models/editable_items.dart';
 
+/// A widget for removing an item.
+///
+/// This widget is a part of the UI where the user can remove an item.
+/// It is a stateless widget that takes several parameters to control its behavior and appearance.
+/// It uses a Visibility widget to display the remove button, and the user can interact with it by tapping on it.
 class RemoveWidget extends StatelessWidget {
+  /// Indicates whether the widget is in text input mode.
+  final bool isTextInput;
+
+  /// The active item that can be removed.
+  final EditableItem? _activeItem;
+
+  /// Indicates whether the widget is in delete position.
+  final bool isDeletePosition;
+
+  /// The duration of animations within the widget.
+  final Duration animationsDuration;
+
+  /// Creates an instance of the widget.
+  ///
+  /// The isTextInput, isDeletePosition, and animationsDuration parameters are required and must not be null.
+  /// The activeItem parameter is optional.
   const RemoveWidget({
-    Key? key,
+    super.key,
     required this.isTextInput,
     required EditableItem? activeItem,
     required this.isDeletePosition,
     required this.animationsDuration,
-  })  : _activeItem = activeItem,
-        super(key: key);
+  }) : _activeItem = activeItem;
 
-  final bool isTextInput;
-  final EditableItem? _activeItem;
-  final bool isDeletePosition;
-  final Duration animationsDuration;
-
+  /// Describes the part of the user interface represented by this widget.
+  ///
+  /// The framework calls this method when this widget is inserted into the tree in a given BuildContext and when the dependencies of this widget change.
   @override
   Widget build(BuildContext context) {
     return Visibility(

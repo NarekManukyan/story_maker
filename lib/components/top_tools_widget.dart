@@ -5,19 +5,44 @@ import '../constants/gradients.dart';
 import '../extensions/context_extension.dart';
 import '../models/editable_items.dart';
 
+/// A widget for displaying the top tools.
+///
+/// This widget is a part of the UI where the user can interact with the top tools.
+/// It is a stateless widget that takes several parameters to control its behavior and appearance.
+/// It uses a Positioned widget to display the top tools, and the user can interact with it by tapping on it.
 class TopToolsWidget extends StatelessWidget {
+  /// Indicates whether the widget is in text input mode.
   final bool isTextInput;
+
+  /// The duration of animations within the widget.
   final Duration animationsDuration;
+
+  /// The active item that can be interacted with.
   final EditableItem? activeItem;
+
+  /// The index of the currently selected background gradient.
   final int selectedBackgroundGradientIndex;
+
+  /// The index of the currently selected text background gradient.
   final int selectedTextBackgroundGradientIndex;
+
+  /// A callback function that is called when the screen is tapped.
   final VoidCallback onScreenTap;
+
+  /// A callback function that is called when the picker is tapped.
   final VoidCallback onPickerTap;
+
+  /// A callback function that is called when the text color picker is toggled.
   final VoidCallback onToggleTextColorPicker;
+
+  /// A callback function that is called when the text background is changed.
   final VoidCallback onChangeTextBackground;
 
+  /// Creates an instance of the widget.
+  ///
+  /// All parameters are required and must not be null.
   const TopToolsWidget({
-    Key? key,
+    super.key,
     required this.isTextInput,
     required this.animationsDuration,
     this.selectedBackgroundGradientIndex = 0,
@@ -27,8 +52,11 @@ class TopToolsWidget extends StatelessWidget {
     required this.onToggleTextColorPicker,
     required this.onChangeTextBackground,
     this.activeItem,
-  }) : super(key: key);
+  });
 
+  /// Describes the part of the user interface represented by this widget.
+  ///
+  /// The framework calls this method when this widget is inserted into the tree in a given BuildContext and when the dependencies of this widget change.
   @override
   Widget build(BuildContext context) {
     if (isTextInput) {

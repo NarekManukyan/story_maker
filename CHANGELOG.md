@@ -17,3 +17,11 @@
 
 * Updated libraries.
 * Fixed some bugs.
+
+## [1.0.5] - 4/12/2023
+
+* Updated Dart and Pub dependencies.
+* Improved code documentation.
+* Fixed various bugs and issues.
+* Optimized code for better performance.
+* Updated example app.

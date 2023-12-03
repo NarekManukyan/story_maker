@@ -4,18 +4,35 @@ import 'package:flutter/material.dart';
 
 import '../extensions/context_extension.dart';
 
+/// A widget for displaying footer tools.
+///
+/// This widget is a part of the UI where the user can interact with footer tools.
+/// It is a stateless widget that takes several parameters to control its behavior and appearance.
+/// It uses an ElevatedButton to display a done button, and the user can interact with it by tapping on it.
 class FooterToolsWidget extends StatelessWidget {
+  /// A callback function that is called when the done button is pressed.
   final AsyncCallback onDone;
+
+  /// The child widget of the done button.
   final Widget? doneButtonChild;
+
+  /// Indicates whether the widget is in loading state.
   final bool isLoading;
 
+  /// Creates an instance of the widget.
+  ///
+  /// The onDone parameter is required and must not be null.
+  /// The doneButtonChild and isLoading parameters are optional.
   const FooterToolsWidget({
-    Key? key,
+    super.key,
     required this.onDone,
     this.doneButtonChild,
     this.isLoading = false,
-  }) : super(key: key);
+  });
 
+  /// Describes the part of the user interface represented by this widget.
+  ///
+  /// The framework calls this method when this widget is inserted into the tree in a given BuildContext and when the dependencies of this widget change.
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -42,11 +59,11 @@ class FooterToolsWidget extends StatelessWidget {
               child: isLoading
                   ? const CupertinoActivityIndicator()
                   : doneButtonChild ??
-                      Row(
+                      const Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Row(
-                            children: const [
+                            children: [
                               SizedBox(width: 4),
                               Text(
                                 'Add to story',
