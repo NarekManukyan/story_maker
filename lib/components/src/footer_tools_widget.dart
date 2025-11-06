@@ -4,9 +4,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import '../extensions/context_extension.dart';
-import '../theme/story_maker_theme.dart';
-import '../theme/story_maker_theme_provider.dart';
+import '../../extensions/src/context_extension.dart';
+import '../../theme/src/story_maker_theme.dart';
+import '../../theme/src/story_maker_theme_provider.dart';
 
 /// A widget for displaying footer tools.
 ///
@@ -55,13 +55,13 @@ class FooterToolsWidget extends StatelessWidget {
       child: ClipRect(
         child: BackdropFilter(
           filter: ui.ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: Container(
+          child: DecoratedBox(
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.bottomCenter,
                 end: Alignment.topCenter,
                 colors: [
-                  Colors.black.withOpacity(0.3),
+                  Colors.black.withValues(alpha: 0.3),
                   Colors.transparent,
                 ],
               ),

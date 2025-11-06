@@ -2,9 +2,9 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 
-import '../extensions/context_extension.dart';
-import '../models/sticker_item.dart';
-import '../theme/story_maker_theme_provider.dart';
+import '../../extensions/src/context_extension.dart';
+import '../../models/src/sticker_item.dart';
+import '../../theme/src/story_maker_theme_provider.dart';
 
 /// A widget for selecting stickers.
 ///
@@ -62,7 +62,6 @@ class StickerSelectorWidget extends StatelessWidget {
                     borderRadius: BorderRadius.circular(context.width * .075),
                     border: Border.all(
                       color: theme.stickerSelectorBorderColor,
-                      width: 1,
                     ),
                   ),
                   child: Center(

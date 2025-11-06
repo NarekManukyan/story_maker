@@ -3,10 +3,10 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../extensions/context_extension.dart';
-import '../models/editable_items.dart';
-import '../theme/story_maker_theme.dart';
-import '../theme/story_maker_theme_provider.dart';
+import '../../extensions/src/context_extension.dart';
+import '../../models/src/editable_items.dart';
+import '../../theme/src/story_maker_theme.dart';
+import '../../theme/src/story_maker_theme_provider.dart';
 
 /// A widget for displaying the top tools.
 ///
@@ -108,7 +108,7 @@ class TopToolsWidget extends StatelessWidget {
                 context: context,
                 theme: theme,
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.6),
+                  color: Colors.black.withValues(alpha: 0.6),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: IconButton(

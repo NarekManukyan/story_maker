@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../extensions/context_extension.dart';
-import '../utils/gradient_util.dart';
+import '../../extensions/src/context_extension.dart';
+import '../../utils/src/gradient_util.dart';
 
 /// A widget for displaying a text field.
 ///

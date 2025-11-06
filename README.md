@@ -11,7 +11,7 @@ Add this to your package's pubspec.yaml file:
 
 ```yaml
 dependencies:
-  story_maker: ^1.1.0
+  story_maker: ^1.2.0
 ```
 
 ## Example
@@ -109,29 +109,68 @@ StoryMaker(
 ### Available Features
 
 #### Core Features
-- [x] Image scaling and rotation
-- [x] Adding text to images with customizable:
-  - Font family (with 50+ Google Fonts)
-  - Font size (adjustable slider)
-  - Text color (extensive color palette)
-  - Text background gradients
-- [x] Background gradients for images
-- [x] Stickers support:
+- [x] **Image Editing**:
+  - Image scaling and rotation
+  - Pinch-to-zoom and pan gestures
+  - Photo view with rotation support
+  
+- [x] **Text Editing**:
+  - Adding text to images with customizable:
+    - Font family (with 50+ Google Fonts via `google_fonts` package)
+    - Font size (adjustable slider from 14-74px)
+    - Text color (extensive color palette with 20+ default colors)
+    - Text background gradients (60+ gradient options)
+  - Real-time text preview
+  - Drag, rotate, and scale text items
+  - Multiple text items support
+  
+- [x] **Background Gradients**:
+  - 60+ pre-built gradient options
+  - Custom gradient support via `customGradients` parameter
+  - Gradient selector with visual preview
+  
+- [x] **Stickers Support**:
   - Emoji stickers (50+ default emojis)
-  - Custom image/GIF stickers
-  - Customizable sticker list
-- [x] Color filters:
-  - Sepia, Grayscale, Vintage
-  - Cool, Warm, Bright, Dark
-  - Swipe gestures for quick filter navigation
-- [x] Theme customization:
-  - Complete UI theming system
-  - Pre-built dark and light themes
-  - Customizable colors, borders, shadows
-- [x] Custom done button builder
-- [x] Customizable font lists
-- [x] Customizable text color lists
-- [x] Customizable gradient color lists
+  - Custom image/GIF stickers via `StickerItem.image()`
+  - Customizable sticker list via `customStickers` parameter
+  - Sticker selector with horizontal scrolling interface
+  - Drag, rotate, and scale sticker items
+  
+- [x] **Color Filters**:
+  - 8 color filter options: None, Sepia, Grayscale, Vintage, Cool, Warm, Bright, Dark
+  - Swipe left/right gestures for quick filter navigation
+  - Filter name overlay display when selecting filters
+  - Color filter picker with visual preview
+  - Real-time filter application
+  
+- [x] **Theme Customization**:
+  - Complete UI theming system via `StoryMakerTheme`
+  - Pre-built dark and light theme variants
+  - Customizable colors (background, buttons, icons, text, borders)
+  - Customizable border radius and shadows
+  - Theme provider system for easy access throughout widget tree
+  - Support for custom button styles and decorations
+  
+- [x] **Customization Options**:
+  - Custom done button builder with theme, callback, and loading state access
+  - Customizable font lists via `customFontList` parameter
+  - Customizable text color lists via `customTextColors` parameter
+  - Customizable gradient color lists via `customGradients` parameter
+  - Customizable animation duration via `animationsDuration` parameter
+  
+- [x] **User Experience**:
+  - Haptic feedback on interactions
+  - Style name overlay when changing font families
+  - Filter name overlay when changing color filters
+  - Delete item by dragging to bottom area
+  - Smooth animations and transitions
+  - Loading state during image export
+  
+- [x] **Developer Experience**:
+  - Barrel files for organized imports
+  - Comprehensive documentation
+  - Type-safe APIs
+  - Backward compatible updates
 
 
 [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/narek.manukyan)

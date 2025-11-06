@@ -55,4 +55,3 @@ const List<String> defaultStickers = [
   '🎨',
   '🎬',
 ];
-

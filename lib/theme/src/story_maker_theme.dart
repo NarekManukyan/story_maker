@@ -106,12 +106,10 @@ class StoryMakerTheme {
       backgroundColor: Color(0xFF121212),
       buttonColor: Color(0xFF1E1E1E),
       buttonTextColor: Colors.white,
-      iconColor: Colors.white,
-      textColor: Colors.white,
       borderColor: Color(0x33FFFFFF),
       overlayColor: Color(0x80000000),
       textInputOverlayColor: Color(0x80000000),
-      safeAreaBorderRadius: 32.0,
+      safeAreaBorderRadius: 32,
     );
   }
 
@@ -119,14 +117,11 @@ class StoryMakerTheme {
   factory StoryMakerTheme.light() {
     return const StoryMakerTheme(
       backgroundColor: Color(0xFFF5F5F5),
-      buttonColor: Colors.white,
       buttonTextColor: Color(0xFF333333),
       iconColor: Color(0xFF333333),
       textColor: Color(0xFF333333),
       borderColor: Color(0x1A000000),
-      overlayColor: Color(0x66000000),
-      textInputOverlayColor: Color(0x66000000),
-      safeAreaBorderRadius: 32.0,
+      safeAreaBorderRadius: 32,
     );
   }
 

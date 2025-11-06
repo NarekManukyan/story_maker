@@ -16,28 +16,17 @@ import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:photo_view/photo_view.dart';
 
-import 'components/background_gradient_selector_widget.dart';
-import 'components/font_family_select_widget.dart';
-import 'components/footer_tools_widget.dart';
-import 'components/overlay_item_widget.dart';
-import 'components/remove_widget.dart';
-import 'components/size_slider_widget.dart';
-import 'components/sticker_selector_widget.dart';
-import 'components/text_color_select_widget.dart';
-import 'components/text_field_widget.dart';
-import 'components/top_tools_widget.dart';
-import 'constants/color_filters.dart';
-import 'constants/font_colors.dart';
-import 'constants/font_styles.dart';
-import 'constants/gradients.dart';
-import 'constants/item_type.dart';
-import 'constants/stickers.dart';
-import 'constants/ui_constants.dart';
-import 'extensions/context_extension.dart';
-import 'models/editable_items.dart';
-import 'models/sticker_item.dart';
-import 'theme/story_maker_theme.dart';
-import 'theme/story_maker_theme_provider.dart';
+import 'components/components.dart';
+import 'constants/constants.dart';
+import 'extensions/extensions.dart';
+import 'models/models.dart';
+import 'theme/theme.dart';
+
+export 'components/components.dart';
+export 'constants/constants.dart';
+export 'extensions/extensions.dart';
+export 'models/models.dart';
+export 'theme/theme.dart';
 
 class StoryMaker extends StatefulWidget {
   const StoryMaker({
@@ -345,7 +334,7 @@ class _StoryMakerState extends State<StoryMaker> {
                                 : Container(
                                     height: context.height,
                                     width: context.width,
-                                    color: Colors.black.withOpacity(0.4),
+                                    color: Colors.black.withValues(alpha: 0.4),
                                     child: Stack(
                                       children: [
                                         TextFieldWidget(
@@ -464,7 +453,7 @@ class _StoryMakerState extends State<StoryMaker> {
                           vertical: 12,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.7),
+                          color: Colors.black.withValues(alpha: 0.7),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
@@ -493,7 +482,7 @@ class _StoryMakerState extends State<StoryMaker> {
                           bottom: context.bottomPadding,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.7),
+                          color: Colors.black.withValues(alpha: 0.7),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
@@ -700,10 +689,10 @@ class _StoryMakerState extends State<StoryMaker> {
     }
 
     final velocity = details.velocity.pixelsPerSecond.dx;
-    final threshold = 300.0; // Minimum velocity to trigger filter change
+    const threshold = 300.0; // Minimum velocity to trigger filter change
 
     if (velocity.abs() > threshold) {
-      final filters = ColorFilterType.values;
+      const filters = ColorFilterType.values;
       final currentIndex = _selectedColorFilter.index;
 
       // Cancel previous timer if exists

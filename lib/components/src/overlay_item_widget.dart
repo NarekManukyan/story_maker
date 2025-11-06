@@ -3,11 +3,11 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../constants/item_type.dart';
-import '../constants/ui_constants.dart';
-import '../extensions/context_extension.dart';
-import '../models/editable_items.dart';
-import '../utils/gradient_util.dart';
+import '../../constants/src/item_type.dart';
+import '../../constants/src/ui_constants.dart';
+import '../../extensions/src/context_extension.dart';
+import '../../models/src/editable_items.dart';
+import '../../utils/src/gradient_util.dart';
 
 /// A widget for displaying an overlay item.
 ///

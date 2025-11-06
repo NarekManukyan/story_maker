@@ -20,4 +20,3 @@ class StickerItem {
   @override
   String toString() => value;
 }
-

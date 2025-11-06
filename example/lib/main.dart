@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:story_maker/story_maker.dart';
-import 'package:story_maker/theme/story_maker_theme.dart';
 
 void main() {
   runApp(
@@ -41,9 +40,7 @@ class _MyAppState extends State<MyApp> {
                   Permission.photos,
                   Permission.storage,
                 ].request();
-                final picker = ImagePicker(
-
-                );
+                final picker = ImagePicker();
                 final pickedFile =
                     await picker.pickImage(source: ImageSource.gallery);
                 if (pickedFile != null) {
@@ -51,9 +48,7 @@ class _MyAppState extends State<MyApp> {
                     MaterialPageRoute(
                       builder: (context) => StoryMaker(
                         filePath: pickedFile.path,
-                        theme: StoryMakerTheme(
-                          
-                        ),
+                        theme: StoryMakerTheme(),
                       ),
                     ),
                   );
