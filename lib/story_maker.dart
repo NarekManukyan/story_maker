@@ -4,9 +4,12 @@
 /// stories, including text editing, image manipulation, and more.
 library story_maker;
 
+import 'dart:async';
+import 'dart:developer';
 import 'dart:io';
 import 'dart:ui' as ui;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -19,14 +22,22 @@ import 'components/footer_tools_widget.dart';
 import 'components/overlay_item_widget.dart';
 import 'components/remove_widget.dart';
 import 'components/size_slider_widget.dart';
+import 'components/sticker_selector_widget.dart';
 import 'components/text_color_select_widget.dart';
 import 'components/text_field_widget.dart';
 import 'components/top_tools_widget.dart';
+import 'constants/color_filters.dart';
 import 'constants/font_colors.dart';
+import 'constants/font_styles.dart';
 import 'constants/gradients.dart';
 import 'constants/item_type.dart';
+import 'constants/stickers.dart';
+import 'constants/ui_constants.dart';
 import 'extensions/context_extension.dart';
 import 'models/editable_items.dart';
+import 'models/sticker_item.dart';
+import 'theme/story_maker_theme.dart';
+import 'theme/story_maker_theme_provider.dart';
 
 class StoryMaker extends StatefulWidget {
   const StoryMaker({
@@ -34,11 +45,31 @@ class StoryMaker extends StatefulWidget {
     required this.filePath,
     this.animationsDuration = const Duration(milliseconds: 300),
     this.doneButtonChild,
+    this.customFontList,
+    this.customTextColors,
+    this.customGradients,
+    this.customStickers,
+    this.theme,
+    this.doneButtonBuilder,
   });
 
   final String filePath;
   final Duration animationsDuration;
   final Widget? doneButtonChild;
+  final List<String>? customFontList;
+  final List<Color>? customTextColors;
+  final List<List<Color>>? customGradients;
+  final List<StickerItem>? customStickers;
+  final StoryMakerTheme? theme;
+
+  /// Custom widget builder for the done button.
+  /// If provided, this will be used instead of the default "Add to story" button.
+  /// The builder receives the theme and onDone callback.
+  final Widget Function(
+    StoryMakerTheme theme,
+    AsyncCallback onDone,
+    bool isLoading,
+  )? doneButtonBuilder;
 
   @override
   _StoryMakerState createState() => _StoryMakerState();
@@ -82,7 +113,7 @@ class _StoryMakerState extends State<StoryMaker> {
   int _selectedBackgroundGradient = 0;
 
 // The currently selected font size.
-  double _selectedFontSize = 26;
+  double _selectedFontSize = FontSizeConstants.defaultValue;
 
 // The index of the currently selected font family.
   int _selectedFontFamily = 0;
@@ -96,8 +127,29 @@ class _StoryMakerState extends State<StoryMaker> {
 // Indicates whether the background color picker is selected.
   bool _isBackgroundColorPickerSelected = false;
 
+// Indicates whether the sticker picker is selected.
+  bool _isStickerPickerSelected = false;
+
+// Indicates whether the color filter picker is selected.
+  bool _isColorFilterPickerSelected = false;
+
+// The currently selected color filter.
+  ColorFilterType _selectedColorFilter = ColorFilterType.none;
+
 // Indicates whether the widget is in loading state.
   bool _isLoading = false;
+
+// The currently displayed style name (for showing style name overlay).
+  String? _displayedStyleName;
+
+// Timer for hiding the style name overlay.
+  Timer? _styleNameTimer;
+
+// The currently displayed filter name (for showing filter name overlay).
+  String? _displayedFilterName;
+
+// Timer for hiding the filter name overlay.
+  Timer? _filterNameTimer;
 
 // The controller for the font family PageView.
   late PageController _familyPageController;
@@ -108,11 +160,35 @@ class _StoryMakerState extends State<StoryMaker> {
 // The controller for the gradients PageView.
   late PageController _gradientsPageController;
 
+// The controller for the color filters PageView.
+  late PageController _colorFiltersPageController;
+
 // The controller for the text editing field.
   final _editingController = TextEditingController();
 
 // The stack data for the editable items.
   final _stackData = <EditableItem>[];
+
+  /// Gets the font list to use (custom or default).
+  List<String> get _fontList => widget.customFontList ?? fontFamilyList;
+
+  /// Gets the text colors list to use (custom or default).
+  List<Color> get _textColors => widget.customTextColors ?? defaultColors;
+
+  /// Gets the gradients list to use (custom or default).
+  List<List<Color>> get _gradients => widget.customGradients ?? gradientColors;
+
+  /// Gets the stickers list to use (custom or default).
+  List<StickerItem> get _stickers {
+    if (widget.customStickers != null) {
+      return widget.customStickers!;
+    }
+    // Convert default emoji strings to StickerItem.emoji
+    return defaultStickers.map((emoji) => StickerItem.emoji(emoji)).toList();
+  }
+
+  /// Gets the theme to use (custom or default).
+  StoryMakerTheme get _theme => widget.theme ?? StoryMakerTheme.defaultTheme();
 
   @override
 
@@ -137,6 +213,9 @@ class _StoryMakerState extends State<StoryMaker> {
     _familyPageController.dispose();
     _textColorsPageController.dispose();
     _gradientsPageController.dispose();
+    _colorFiltersPageController.dispose();
+    _styleNameTimer?.cancel();
+    _filterNameTimer?.cancel();
     super.dispose();
   }
 
@@ -151,9 +230,19 @@ class _StoryMakerState extends State<StoryMaker> {
         ..type = ItemType.IMAGE
         ..value = widget.filePath,
     );
-    _familyPageController = PageController(viewportFraction: .125);
-    _textColorsPageController = PageController(viewportFraction: .1);
-    _gradientsPageController = PageController(viewportFraction: .175);
+    _familyPageController = PageController(
+      viewportFraction: ViewportFractions.fontFamily,
+    );
+    _textColorsPageController = PageController(
+      viewportFraction: ViewportFractions.textColors,
+    );
+    _gradientsPageController = PageController(
+      viewportFraction: ViewportFractions.gradients,
+    );
+    _colorFiltersPageController = PageController(
+      viewportFraction: 0.15,
+      initialPage: _selectedColorFilter.index,
+    );
   }
 
   @override
@@ -162,179 +251,265 @@ class _StoryMakerState extends State<StoryMaker> {
       textHeightBehavior: const TextHeightBehavior(
         leadingDistribution: TextLeadingDistribution.even,
       ),
-      child: Scaffold(
-        resizeToAvoidBottomInset: false,
-        backgroundColor: Colors.black,
-        body: Stack(
-          clipBehavior: Clip.antiAlias,
-          children: [
-            Positioned(
-              top: context.topPadding,
-              left: 0,
-              right: 0,
-              child: ClipRect(
-                child: AspectRatio(
-                  aspectRatio: 9 / 16,
-                  child: GestureDetector(
-                    onScaleStart: _onScaleStart,
-                    onScaleUpdate: _onScaleUpdate,
-                    onTap: _onScreenTap,
-                    child: Stack(
-                      children: [
-                        RepaintBoundary(
-                          key: previewContainer,
-                          child: Stack(
-                            children: [
-                              Visibility(
-                                visible: _stackData[0].type == ItemType.IMAGE,
-                                child: Center(
-                                  child: PhotoView(
-                                    enableRotation: true,
-                                    backgroundDecoration: BoxDecoration(
-                                      gradient: LinearGradient(
-                                        begin: FractionalOffset.topLeft,
-                                        end: FractionalOffset.centerRight,
-                                        colors: gradientColors[
-                                            _selectedBackgroundGradient],
+      child: StoryMakerThemeProvider(
+        theme: _theme,
+        child: Scaffold(
+          resizeToAvoidBottomInset: false,
+          backgroundColor: _theme.backgroundColor,
+          body: Stack(
+            clipBehavior: Clip.antiAlias,
+            children: [
+              Positioned(
+                top: context.topPadding,
+                left: 0,
+                right: 0,
+                child: ClipRRect(
+                  borderRadius:
+                      BorderRadius.circular(_theme.safeAreaBorderRadius),
+                  child: AspectRatio(
+                    aspectRatio: StoryConstants.aspectRatio,
+                    child: GestureDetector(
+                      onScaleStart: _onScaleStart,
+                      onScaleUpdate: _onScaleUpdate,
+                      onTap: _onScreenTap,
+                      onHorizontalDragEnd: _onHorizontalDragEnd,
+                      child: Stack(
+                        children: [
+                          RepaintBoundary(
+                            key: previewContainer,
+                            child: Stack(
+                              children: [
+                                Visibility(
+                                  visible: _stackData[0].type == ItemType.IMAGE,
+                                  child: Center(
+                                    child: ColorFiltered(
+                                      colorFilter: ColorFilter.matrix(
+                                        getColorFilterMatrix(
+                                          _selectedColorFilter,
+                                        ),
                                       ),
-                                    ),
-                                    maxScale: 2.0,
-                                    enablePanAlways: false,
-                                    imageProvider: FileImage(
-                                      File(_stackData[0].value),
+                                      child: PhotoView(
+                                        enableRotation: true,
+                                        backgroundDecoration: BoxDecoration(
+                                          gradient: LinearGradient(
+                                            begin: FractionalOffset.topLeft,
+                                            end: FractionalOffset.centerRight,
+                                            colors: _gradients[
+                                                _selectedBackgroundGradient],
+                                          ),
+                                        ),
+                                        maxScale: 2.0,
+                                        enablePanAlways: false,
+                                        imageProvider: FileImage(
+                                          File(_stackData[0].value),
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                              ..._stackData.map(
-                                (editableItem) => OverlayItemWidget(
-                                  editableItem: editableItem,
-                                  onItemTap: () {
-                                    _onOverlayItemTap(editableItem);
-                                  },
-                                  onPointerDown: (details) {
-                                    _onOverlayItemPointerDown(
-                                      editableItem,
-                                      details,
-                                    );
-                                  },
-                                  onPointerUp: (details) {
-                                    _onOverlayItemPointerUp(
-                                      editableItem,
-                                      details,
-                                    );
-                                  },
-                                  onPointerMove: (details) {
-                                    _onOverlayItemPointerMove(
-                                      editableItem,
-                                      details,
-                                    );
-                                  },
+                                ..._stackData.map(
+                                  (editableItem) => OverlayItemWidget(
+                                    editableItem: editableItem,
+                                    onItemTap: () {
+                                      _onOverlayItemTap(editableItem);
+                                    },
+                                    onPointerDown: (details) {
+                                      _onOverlayItemPointerDown(
+                                        editableItem,
+                                        details,
+                                      );
+                                    },
+                                    onPointerUp: (details) {
+                                      _onOverlayItemPointerUp(
+                                        editableItem,
+                                        details,
+                                      );
+                                    },
+                                    onPointerMove: (details) {
+                                      _onOverlayItemPointerMove(
+                                        editableItem,
+                                        details,
+                                      );
+                                    },
+                                    fontList: _fontList,
+                                    gradients: _gradients,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                        AnimatedSwitcher(
-                          duration: widget.animationsDuration,
-                          child: !_isTextInput
-                              ? const SizedBox()
-                              : Container(
-                                  height: context.height,
-                                  width: context.width,
-                                  color: Colors.black.withOpacity(0.4),
-                                  child: Stack(
-                                    children: [
-                                      TextFieldWidget(
-                                        controller: _editingController,
-                                        onChanged: _onTextChange,
-                                        onSubmit: _onTextSubmit,
-                                        fontSize: _selectedFontSize,
-                                        fontFamilyIndex: _selectedFontFamily,
-                                        textColor: _selectedTextColor,
-                                        backgroundColorIndex:
-                                            _selectedTextBackgroundGradient,
-                                      ),
-                                      SizeSliderWidget(
-                                        animationsDuration:
-                                            widget.animationsDuration,
-                                        selectedValue: _selectedFontSize,
-                                        onChanged: (input) {
-                                          setState(
-                                            () {
-                                              _selectedFontSize = input;
-                                            },
-                                          );
-                                        },
-                                      ),
-                                    ],
+                          AnimatedSwitcher(
+                            duration: widget.animationsDuration,
+                            child: !_isTextInput
+                                ? const SizedBox()
+                                : Container(
+                                    height: context.height,
+                                    width: context.width,
+                                    color: Colors.black.withOpacity(0.4),
+                                    child: Stack(
+                                      children: [
+                                        TextFieldWidget(
+                                          controller: _editingController,
+                                          onChanged: _onTextChange,
+                                          onSubmit: _onTextSubmit,
+                                          fontSize: _selectedFontSize,
+                                          fontFamilyIndex: _selectedFontFamily,
+                                          textColor: _selectedTextColor,
+                                          backgroundColorIndex:
+                                              _selectedTextBackgroundGradient,
+                                          fontList: _fontList,
+                                          gradients: _gradients,
+                                        ),
+                                        SizeSliderWidget(
+                                          animationsDuration:
+                                              widget.animationsDuration,
+                                          selectedValue: _selectedFontSize,
+                                          onChanged: (input) {
+                                            setState(
+                                              () {
+                                                _selectedFontSize = input;
+                                              },
+                                            );
+                                          },
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                        ),
-                      ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-            if (_isTextInput)
-              if (!_isColorPickerSelected)
-                FontFamilySelectWidget(
-                  animationsDuration: widget.animationsDuration,
-                  pageController: _familyPageController,
-                  selectedFamilyIndex: _selectedFontFamily,
-                  onPageChanged: _onFamilyChange,
-                  onTap: (index) {
-                    _onStyleChange(index);
-                  },
-                )
-              else
-                TextColorSelectWidget(
-                  animationsDuration: widget.animationsDuration,
-                  pageController: _textColorsPageController,
-                  selectedTextColor: _selectedTextColor,
-                  onPageChanged: _onTextColorChange,
-                  onTap: (index) {
-                    _onColorChange(index);
-                  },
-                ),
-            BackgroundGradientSelectorWidget(
-              isTextInput: _isTextInput,
-              isBackgroundColorPickerSelected: _isBackgroundColorPickerSelected,
-              inAction: _inAction,
-              animationsDuration: widget.animationsDuration,
-              gradientsPageController: _gradientsPageController,
-              onPageChanged: _onChangeBackgroundGradient,
-              onItemTap: _onBackgroundGradientTap,
-              selectedGradientIndex: _selectedBackgroundGradient,
-            ),
-            TopToolsWidget(
-              isTextInput: _isTextInput,
-              selectedBackgroundGradientIndex: _selectedBackgroundGradient,
-              animationsDuration: widget.animationsDuration,
-              onPickerTap: _onToggleBackgroundGradientPicker,
-              onScreenTap: _onScreenTap,
-              selectedTextBackgroundGradientIndex:
-                  _selectedTextBackgroundGradient,
-              onToggleTextColorPicker: _onToggleTextColorSelector,
-              onChangeTextBackground: _onChangeTextBackground,
-              activeItem: _activeItem,
-            ),
-            RemoveWidget(
-              isTextInput: _isTextInput,
-              animationsDuration: widget.animationsDuration,
-              activeItem: _activeItem,
-              isDeletePosition: _isDeletePosition,
-            ),
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: FooterToolsWidget(
-                onDone: _onDone,
-                doneButtonChild: widget.doneButtonChild,
-                isLoading: _isLoading,
+              if (_isTextInput)
+                if (!_isColorPickerSelected)
+                  FontFamilySelectWidget(
+                    animationsDuration: widget.animationsDuration,
+                    pageController: _familyPageController,
+                    selectedFamilyIndex: _selectedFontFamily,
+                    onPageChanged: _onFamilyChange,
+                    onTap: (index) {
+                      _onStyleChange(index);
+                    },
+                    fontList: _fontList,
+                  )
+                else
+                  TextColorSelectWidget(
+                    animationsDuration: widget.animationsDuration,
+                    pageController: _textColorsPageController,
+                    selectedTextColor: _selectedTextColor,
+                    onPageChanged: _onTextColorChange,
+                    onTap: (index) {
+                      _onColorChange(index);
+                    },
+                    textColors: _textColors,
+                  ),
+              BackgroundGradientSelectorWidget(
+                isTextInput: _isTextInput,
+                isBackgroundColorPickerSelected:
+                    _isBackgroundColorPickerSelected,
+                inAction: _inAction,
+                animationsDuration: widget.animationsDuration,
+                gradientsPageController: _gradientsPageController,
+                onPageChanged: _onChangeBackgroundGradient,
+                onItemTap: _onBackgroundGradientTap,
+                selectedGradientIndex: _selectedBackgroundGradient,
+                gradients: _gradients,
               ),
-            ),
-          ],
+              TopToolsWidget(
+                isTextInput: _isTextInput,
+                selectedBackgroundGradientIndex: _selectedBackgroundGradient,
+                animationsDuration: widget.animationsDuration,
+                onPickerTap: _onToggleBackgroundGradientPicker,
+                onScreenTap: _onScreenTap,
+                selectedTextBackgroundGradientIndex:
+                    _selectedTextBackgroundGradient,
+                onToggleTextColorPicker: _onToggleTextColorSelector,
+                onChangeTextBackground: _onChangeTextBackground,
+                gradients: _gradients,
+                activeItem: _activeItem,
+                onStickerTap: _onToggleStickerPicker,
+              ),
+              StickerSelectorWidget(
+                stickers: _stickers,
+                animationsDuration: widget.animationsDuration,
+                onStickerTap: _onStickerSelected,
+                isVisible:
+                    _isStickerPickerSelected && !_isTextInput && !_inAction,
+              ),
+              RemoveWidget(
+                isTextInput: _isTextInput,
+                animationsDuration: widget.animationsDuration,
+                activeItem: _activeItem,
+                isDeletePosition: _isDeletePosition,
+              ),
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: FooterToolsWidget(
+                  onDone: _onDone,
+                  doneButtonChild: widget.doneButtonChild,
+                  isLoading: _isLoading,
+                  doneButtonBuilder: widget.doneButtonBuilder,
+                ),
+              ),
+              // Style name overlay - positioned at the end to appear on top
+              if (_displayedStyleName != null)
+                Positioned.fill(
+                  child: IgnorePointer(
+                    child: Center(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.7),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          _displayedStyleName!,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              // Filter name overlay - positioned at the end to appear on top
+              if (_displayedFilterName != null)
+                Positioned.fill(
+                  child: IgnorePointer(
+                    child: Center(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
+                        margin: EdgeInsets.only(
+                          bottom: context.bottomPadding,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.7),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          _displayedFilterName!,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 24,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );
@@ -378,10 +553,10 @@ class _StoryMakerState extends State<StoryMaker> {
   /// Changes the background of the text.
   ///
   /// This method is called when the user taps on the text background change button.
-  /// It increments the [_selectedTextBackgroundGradient] index if it's less than the length of [gradientColors] array.
+  /// It increments the [_selectedTextBackgroundGradient] index if it's less than the length of gradients array.
   /// If the index has reached the end of the array, it resets it to 0.
   void _onChangeTextBackground() {
-    if (_selectedTextBackgroundGradient < gradientColors.length - 1) {
+    if (_selectedTextBackgroundGradient < _gradients.length - 1) {
       setState(() {
         _selectedTextBackgroundGradient++;
       });
@@ -408,12 +583,12 @@ class _StoryMakerState extends State<StoryMaker> {
   ///
   /// This method is called when the user selects a new text color from the color picker.
   /// It updates the [_selectedTextColor] with the new color.
-  /// The [index] parameter is the index of the selected color in the [defaultColors] list.
+  /// The [index] parameter is the index of the selected color in the text colors list.
   void _onTextColorChange(index) {
     HapticFeedback.lightImpact();
     setState(
       () {
-        _selectedTextColor = defaultColors[index];
+        _selectedTextColor = _textColors[index];
       },
     );
   }
@@ -438,8 +613,168 @@ class _StoryMakerState extends State<StoryMaker> {
     setState(
       () {
         _isBackgroundColorPickerSelected = !_isBackgroundColorPickerSelected;
+        _isStickerPickerSelected = false;
+        _isColorFilterPickerSelected = false;
       },
     );
+  }
+
+  /// Toggles the sticker picker.
+  ///
+  /// This method is called when the user taps on the sticker button.
+  /// It toggles the [_isStickerPickerSelected] flag to show or hide the sticker picker.
+  void _onToggleStickerPicker() {
+    setState(
+      () {
+        _isStickerPickerSelected = !_isStickerPickerSelected;
+        _isBackgroundColorPickerSelected = false;
+        _isColorFilterPickerSelected = false;
+        _isTextInput = false;
+        _activeItem = null;
+      },
+    );
+  }
+
+  /// Toggles the color filter picker.
+  ///
+  /// This method is called when the user taps on the color filter button.
+  /// It toggles the [_isColorFilterPickerSelected] flag to show or hide the color filter picker.
+  void _onToggleColorFilterPicker() {
+    setState(
+      () {
+        _isColorFilterPickerSelected = !_isColorFilterPickerSelected;
+        _isBackgroundColorPickerSelected = false;
+        _isStickerPickerSelected = false;
+        _isTextInput = false;
+        _activeItem = null;
+      },
+    );
+  }
+
+  /// Handles color filter selection.
+  ///
+  /// This method is called when the user selects a color filter.
+  /// It updates the [_selectedColorFilter] with the new filter.
+  void _onColorFilterSelected(ColorFilterType filter) {
+    HapticFeedback.lightImpact();
+
+    // Cancel previous timer if exists
+    _filterNameTimer?.cancel();
+
+    // Get the filter name
+    final filterName = getFilterName(filter);
+
+    setState(() {
+      _selectedColorFilter = filter;
+      _isColorFilterPickerSelected = false;
+      _displayedFilterName = filterName;
+    });
+
+    log('filterName: $filterName');
+
+    // Hide the filter name after 2 seconds
+    _filterNameTimer = Timer(const Duration(seconds: 2), () {
+      if (mounted) {
+        setState(() {
+          _displayedFilterName = null;
+        });
+      }
+    });
+
+    // Only jump to page if PageController is attached
+    if (_colorFiltersPageController.hasClients) {
+      _colorFiltersPageController.jumpToPage(filter.index);
+    }
+  }
+
+  /// Handles horizontal drag end (swipe) to change filters.
+  ///
+  /// This method is called when the user swipes horizontally on the image.
+  /// It changes the filter to the next or previous one based on the swipe direction.
+  void _onHorizontalDragEnd(DragEndDetails details) {
+    // Only handle swipe if not in action (moving/editing items) and not in text input
+    if (_inAction || _isTextInput || _activeItem != null) {
+      return;
+    }
+
+    final velocity = details.velocity.pixelsPerSecond.dx;
+    final threshold = 300.0; // Minimum velocity to trigger filter change
+
+    if (velocity.abs() > threshold) {
+      final filters = ColorFilterType.values;
+      final currentIndex = _selectedColorFilter.index;
+
+      // Cancel previous timer if exists
+      _filterNameTimer?.cancel();
+
+      if (velocity > 0) {
+        // Swipe right - next filter
+        final nextIndex = (currentIndex + 1) % filters.length;
+        final filter = filters[nextIndex];
+        final filterName = getFilterName(filter);
+
+        HapticFeedback.lightImpact();
+        setState(() {
+          _selectedColorFilter = filter;
+          _displayedFilterName = filterName;
+        });
+
+        // Hide the filter name after 2 seconds
+        _filterNameTimer = Timer(const Duration(seconds: 2), () {
+          if (mounted) {
+            setState(() {
+              _displayedFilterName = null;
+            });
+          }
+        });
+
+        // Only jump to page if PageController is attached
+        if (_colorFiltersPageController.hasClients) {
+          _colorFiltersPageController.jumpToPage(nextIndex);
+        }
+      } else {
+        // Swipe left - previous filter
+        final prevIndex = (currentIndex - 1 + filters.length) % filters.length;
+        final filter = filters[prevIndex];
+        final filterName = getFilterName(filter);
+
+        HapticFeedback.lightImpact();
+        setState(() {
+          _selectedColorFilter = filter;
+          _displayedFilterName = filterName;
+        });
+
+        // Hide the filter name after 2 seconds
+        _filterNameTimer = Timer(const Duration(seconds: 5), () {
+          if (mounted) {
+            setState(() {
+              _displayedFilterName = null;
+            });
+          }
+        });
+
+        // Only jump to page if PageController is attached
+        if (_colorFiltersPageController.hasClients) {
+          _colorFiltersPageController.jumpToPage(prevIndex);
+        }
+      }
+    }
+  }
+
+  /// Handles sticker selection.
+  ///
+  /// This method is called when the user selects a sticker from the sticker picker.
+  /// It adds a new [EditableItem] of type [ItemType.STICKER] to the [_stackData].
+  void _onStickerSelected(StickerItem sticker) {
+    setState(() {
+      _stackData.add(
+        EditableItem()
+          ..type = ItemType.STICKER
+          ..value = sticker.value
+          ..fontSize = FontSizeConstants.defaultValue,
+      );
+      _isStickerPickerSelected = false;
+    });
   }
 
   /// Handles the selection of a background gradient.
@@ -516,19 +851,22 @@ class _StoryMakerState extends State<StoryMaker> {
       _isTextInput = !_isTextInput;
       _activeItem = null;
       _isBackgroundColorPickerSelected = false;
+      _isStickerPickerSelected = false;
     });
 
     if (_currentText.isNotEmpty) {
       setState(_onSubmitText);
     }
+    _familyPageController.dispose();
+    _textColorsPageController.dispose();
     _familyPageController = PageController(
       initialPage: _selectedFontFamily,
-      viewportFraction: .125,
+      viewportFraction: ViewportFractions.fontFamily,
     );
     _textColorsPageController = PageController(
       initialPage:
-          defaultColors.indexWhere((element) => element == _selectedTextColor),
-      viewportFraction: .1,
+          _textColors.indexWhere((element) => element == _selectedTextColor),
+      viewportFraction: ViewportFractions.textColors,
     );
   }
 
@@ -541,17 +879,23 @@ class _StoryMakerState extends State<StoryMaker> {
   Future<void> _onDone() async {
     final boundary = previewContainer.currentContext!.findRenderObject()
         as RenderRepaintBoundary?;
-    _isLoading = true;
-    setState(() {});
+    setState(() {
+      _isLoading = true;
+    });
     final image = await boundary!.toImage(pixelRatio: 3);
     final directory = (await getApplicationDocumentsDirectory()).path;
     final byteData = (await image.toByteData(format: ui.ImageByteFormat.png))!;
     final pngBytes = byteData.buffer.asUint8List();
     final imgFile = File('$directory/${DateTime.now()}.png');
     await imgFile.writeAsBytes(pngBytes);
-    _isLoading = false;
-    setState(() {});
-    Navigator.of(context).pop(imgFile);
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+    if (mounted) {
+      Navigator.of(context).pop(imgFile);
+    }
   }
 
   /// Handles the submission of text input.
@@ -580,21 +924,41 @@ class _StoryMakerState extends State<StoryMaker> {
   /// The [index] parameter is the index of the selected style in the [fontFamilyList] list.
   void _onStyleChange(int index) {
     HapticFeedback.lightImpact();
+
+    // Cancel previous timer if exists
+    _styleNameTimer?.cancel();
+
+    // Get the style name
+    final styleName = _fontList[index];
+
     setState(() {
       _selectedFontFamily = index;
+      _displayedStyleName = styleName;
     });
-    _familyPageController.jumpToPage(index);
+
+    // Hide the style name after 2 seconds
+    _styleNameTimer = Timer(const Duration(seconds: 2), () {
+      if (mounted) {
+        setState(() {
+          _displayedStyleName = null;
+        });
+      }
+    });
+
+    if (_familyPageController.hasClients) {
+      _familyPageController.jumpToPage(index);
+    }
   }
 
   /// Handles the change of text color.
   ///
   /// This method is called when the user selects a new text color from the color picker.
   /// It updates the [_selectedTextColor] with the new color and jumps the [_textColorsPageController] to the selected page.
-  /// The [index] parameter is the index of the selected color in the [defaultColors] list.
+  /// The [index] parameter is the index of the selected color in the text colors list.
   void _onColorChange(int index) {
     HapticFeedback.lightImpact();
     setState(() {
-      _selectedTextColor = defaultColors[index];
+      _selectedTextColor = _textColors[index];
     });
     _textColorsPageController.jumpToPage(index);
   }
@@ -619,15 +983,17 @@ class _StoryMakerState extends State<StoryMaker> {
         _stackData.removeAt(_stackData.indexOf(e));
       },
     );
+    _familyPageController.dispose();
+    _textColorsPageController.dispose();
     _familyPageController = PageController(
-      initialPage: e.textStyle,
-      viewportFraction: .1,
+      initialPage: e.fontFamily,
+      viewportFraction: ViewportFractions.fontFamily,
     );
     _textColorsPageController = PageController(
-      initialPage: defaultColors.indexWhere(
+      initialPage: _textColors.indexWhere(
         (element) => element == e.color,
       ),
-      viewportFraction: .1,
+      viewportFraction: ViewportFractions.textColors,
     );
   }
 
@@ -660,16 +1026,18 @@ class _StoryMakerState extends State<StoryMaker> {
   /// The [details] parameter contains the details of the pointer up gesture.
   void _onOverlayItemPointerUp(EditableItem e, PointerUpEvent details) {
     _inAction = false;
-    if (e.position.dy >= 0.65 && e.position.dx >= 0.0 && e.position.dx <= 1.0) {
+    if (e.position.dy >= PositionConstants.deletePositionThreshold &&
+        e.position.dx >= 0.0 &&
+        e.position.dx <= 1.0) {
       setState(() {
         _stackData.removeAt(_stackData.indexOf(e));
         _activeItem = null;
       });
+    } else {
+      setState(() {
+        _activeItem = null;
+      });
     }
-
-    setState(() {
-      _activeItem = null;
-    });
   }
 
   /// Handles the pointer move event on an overlay item.
@@ -679,7 +1047,9 @@ class _StoryMakerState extends State<StoryMaker> {
   /// The [e] parameter is the [EditableItem] on which the pointer is moving.
   /// The [details] parameter contains the details of the pointer move gesture.
   void _onOverlayItemPointerMove(EditableItem e, PointerMoveEvent details) {
-    if (e.position.dy >= 0.65 && e.position.dx >= 0.0 && e.position.dx <= 1.0) {
+    if (e.position.dy >= PositionConstants.deletePositionThreshold &&
+        e.position.dx >= 0.0 &&
+        e.position.dx <= 1.0) {
       setState(() {
         _isDeletePosition = true;
       });

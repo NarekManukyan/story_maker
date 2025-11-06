@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../constants/font_styles.dart';
 import '../extensions/context_extension.dart';
 
 /// A widget for selecting a font family.
@@ -25,6 +24,9 @@ class FontFamilySelectWidget extends StatelessWidget {
   /// A callback function that is called when an item is tapped.
   final Function(int index) onTap;
 
+  /// The list of font families to display.
+  final List<String> fontList;
+
   /// Creates an instance of the widget.
   ///
   /// All parameters are required and must not be null.
@@ -35,6 +37,7 @@ class FontFamilySelectWidget extends StatelessWidget {
     required this.selectedFamilyIndex,
     required this.onPageChanged,
     required this.onTap,
+    required this.fontList,
   });
 
   /// Describes the part of the user interface represented by this widget.
@@ -53,7 +56,7 @@ class FontFamilySelectWidget extends StatelessWidget {
         alignment: Alignment.center,
         child: PageView.builder(
           controller: pageController,
-          itemCount: fontFamilyList.length,
+          itemCount: fontList.length,
           onPageChanged: onPageChanged,
           physics: const BouncingScrollPhysics(),
           allowImplicitScrolling: true,
@@ -87,7 +90,7 @@ class FontFamilySelectWidget extends StatelessWidget {
                   child: Text(
                     'Aa',
                     style: GoogleFonts.getFont(
-                      fontFamilyList[index],
+                      fontList[index],
                     ).copyWith(
                       color: index == selectedFamilyIndex
                           ? Colors.red

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../constants/ui_constants.dart';
 import '../extensions/context_extension.dart';
 
 /// A widget for controlling the size of an item.
@@ -44,8 +45,8 @@ class SizeSliderWidget extends StatelessWidget {
           width: 248,
           child: Slider(
             value: selectedValue,
-            min: 14,
-            max: 74,
+            min: FontSizeConstants.min,
+            max: FontSizeConstants.max,
             activeColor: Colors.white,
             inactiveColor: Colors.white.withOpacity(0.4),
             onChanged: onChanged,

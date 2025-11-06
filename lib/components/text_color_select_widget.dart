@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import '../constants/font_colors.dart';
 import '../extensions/context_extension.dart';
 
 /// A widget for selecting a text color.
@@ -25,6 +24,9 @@ class TextColorSelectWidget extends StatelessWidget {
   /// A callback function that is called when an item is tapped.
   final Function(int index) onTap;
 
+  /// The list of text colors to display.
+  final List<Color> textColors;
+
   /// Creates an instance of the widget.
   ///
   /// All parameters are required and must not be null.
@@ -35,6 +37,7 @@ class TextColorSelectWidget extends StatelessWidget {
     required this.selectedTextColor,
     required this.onPageChanged,
     required this.onTap,
+    required this.textColors,
   });
 
   /// Describes the part of the user interface represented by this widget.
@@ -53,7 +56,7 @@ class TextColorSelectWidget extends StatelessWidget {
         alignment: Alignment.center,
         child: PageView.builder(
           controller: pageController,
-          itemCount: defaultColors.length,
+          itemCount: textColors.length,
           onPageChanged: onPageChanged,
           physics: const BouncingScrollPhysics(),
           allowImplicitScrolling: true,
@@ -70,7 +73,7 @@ class TextColorSelectWidget extends StatelessWidget {
                   right: 8,
                 ),
                 decoration: BoxDecoration(
-                  color: defaultColors[index],
+                  color: textColors[index],
                   borderRadius: const BorderRadius.all(
                     Radius.circular(20),
                   ),
@@ -81,7 +84,7 @@ class TextColorSelectWidget extends StatelessWidget {
                 child: Center(
                   child: AnimatedSwitcher(
                     duration: animationsDuration,
-                    child: defaultColors[index] == selectedTextColor
+                    child: textColors[index] == selectedTextColor
                         ? Icon(
                             CupertinoIcons.checkmark_alt,
                             color: selectedTextColor == Colors.white

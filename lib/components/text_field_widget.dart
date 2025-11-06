@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../constants/font_styles.dart';
-import '../constants/gradients.dart';
 import '../extensions/context_extension.dart';
 import '../utils/gradient_util.dart';
 
@@ -33,6 +31,12 @@ class TextFieldWidget extends StatelessWidget {
   /// The index of the background color to be used in the text field.
   final int backgroundColorIndex;
 
+  /// The list of font families to use.
+  final List<String> fontList;
+
+  /// The list of gradients to use.
+  final List<List<Color>> gradients;
+
   /// Creates an instance of the widget.
   ///
   /// All parameters are required and must not be null.
@@ -45,6 +49,8 @@ class TextFieldWidget extends StatelessWidget {
     required this.fontFamilyIndex,
     required this.textColor,
     required this.backgroundColorIndex,
+    required this.fontList,
+    required this.gradients,
   });
 
   /// Describes the part of the user interface represented by this widget.
@@ -63,48 +69,47 @@ class TextFieldWidget extends StatelessWidget {
             minWidth: 100,
             maxWidth: context.width - 72,
           ),
-          child: Center(
-            child: IntrinsicWidth(
-              child: ShaderMask(
-                blendMode: BlendMode.overlay,
+          alignment: Alignment.center,
+          child: IntrinsicWidth(
+            child: ShaderMask(
+              blendMode: BlendMode.overlay,
                 shaderCallback: (bounds) {
                   return createShader(
-                    colors: gradientColors[backgroundColorIndex],
+                    colors: gradients[backgroundColorIndex],
                     width: context.width,
                     height: context.height,
                   );
                 },
-                child: TextField(
-                  autofocus: true,
-                  controller: controller,
-                  textAlign: TextAlign.center,
+              child: TextField(
+                autofocus: true,
+                controller: controller,
+                textAlign: TextAlign.center,
                   style: GoogleFonts.getFont(
-                    fontFamilyList[fontFamilyIndex],
+                    fontList[fontFamilyIndex],
                   ).copyWith(
-                    color: textColor,
-                    fontSize: fontSize,
-                  ),
-                  cursorColor: textColor,
-                  minLines: 1,
-                  keyboardType: TextInputType.multiline,
-                  maxLines: null,
-                  decoration: const InputDecoration(
-                    fillColor: Colors.white,
-                    filled: false,
-                    border: UnderlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Colors.transparent,
-                      ),
-                    ),
-                    focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Colors.transparent,
-                      ),
-                    ),
-                  ),
-                  onChanged: onChanged,
-                  onSubmitted: onSubmit,
+                  color: textColor,
+                  fontSize: fontSize,
                 ),
+                cursorColor: textColor,
+                minLines: 1,
+                keyboardType: TextInputType.multiline,
+                maxLines: null,
+                decoration: const InputDecoration(
+                  fillColor: Colors.white,
+                  filled: false,
+                  border: UnderlineInputBorder(
+                    borderSide: BorderSide(
+                      color: Colors.transparent,
+                    ),
+                  ),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(
+                      color: Colors.transparent,
+                    ),
+                  ),
+                ),
+                onChanged: onChanged,
+                onSubmitted: onSubmit,
               ),
             ),
           ),

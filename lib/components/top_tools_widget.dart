@@ -1,9 +1,12 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../constants/gradients.dart';
 import '../extensions/context_extension.dart';
 import '../models/editable_items.dart';
+import '../theme/story_maker_theme.dart';
+import '../theme/story_maker_theme_provider.dart';
 
 /// A widget for displaying the top tools.
 ///
@@ -38,6 +41,12 @@ class TopToolsWidget extends StatelessWidget {
   /// A callback function that is called when the text background is changed.
   final VoidCallback onChangeTextBackground;
 
+  /// A callback function that is called when the sticker button is tapped.
+  final VoidCallback? onStickerTap;
+
+  /// The list of gradients to use.
+  final List<List<Color>> gradients;
+
   /// Creates an instance of the widget.
   ///
   /// All parameters are required and must not be null.
@@ -51,14 +60,41 @@ class TopToolsWidget extends StatelessWidget {
     required this.onPickerTap,
     required this.onToggleTextColorPicker,
     required this.onChangeTextBackground,
+    required this.gradients,
     this.activeItem,
+    this.onStickerTap,
   });
 
   /// Describes the part of the user interface represented by this widget.
   ///
   /// The framework calls this method when this widget is inserted into the tree in a given BuildContext and when the dependencies of this widget change.
+  Widget _buildButtonWithBackdrop({
+    required Widget child,
+    required BoxDecoration decoration,
+    required BuildContext context,
+    required StoryMakerTheme theme,
+  }) {
+    // Get border radius from decoration or use default
+    final borderRadius = decoration.borderRadius as BorderRadius? ??
+        BorderRadius.circular(theme.toolbarButtonBorderRadius);
+
+    return ClipRRect(
+      borderRadius: borderRadius,
+      child: BackdropFilter(
+        filter: ui.ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: DecoratedBox(
+          decoration: decoration.copyWith(
+            color: Colors.black54,
+          ),
+          child: child,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final theme = StoryMakerThemeProvider.of(context);
     if (isTextInput) {
       return Positioned(
         top: context.topPadding,
@@ -68,33 +104,40 @@ class TopToolsWidget extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              IconButton(
-                icon: const Icon(
-                  Icons.color_lens_outlined,
-                  color: Colors.white,
+              _buildButtonWithBackdrop(
+                context: context,
+                theme: theme,
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.6),
+                  borderRadius: BorderRadius.circular(20),
                 ),
-                onPressed: onToggleTextColorPicker,
+                child: IconButton(
+                  icon: Icon(
+                    Icons.color_lens_outlined,
+                    color: theme.iconColor,
+                  ),
+                  onPressed: onToggleTextColorPicker,
+                ),
               ),
-              IconButton(
-                icon: Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: FractionalOffset.topLeft,
-                      end: FractionalOffset.bottomRight,
-                      colors:
-                          gradientColors[selectedTextBackgroundGradientIndex],
-                    ),
-                    borderRadius: const BorderRadius.all(
-                      Radius.circular(4),
-                    ),
+              const SizedBox(width: 8),
+              _buildButtonWithBackdrop(
+                context: context,
+                theme: theme,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: FractionalOffset.topLeft,
+                    end: FractionalOffset.bottomRight,
+                    colors: gradients[selectedTextBackgroundGradientIndex],
                   ),
-                  child: const Icon(
-                    Icons.auto_awesome,
-                    color: Colors.white,
-                  ),
+                  borderRadius: BorderRadius.circular(20),
                 ),
-                onPressed: onChangeTextBackground,
+                child: IconButton(
+                  icon: Icon(
+                    Icons.auto_awesome,
+                    color: theme.iconColor,
+                  ),
+                  onPressed: onChangeTextBackground,
+                ),
               ),
             ],
           ),
@@ -112,51 +155,118 @@ class TopToolsWidget extends StatelessWidget {
             ? const SizedBox()
             : Row(
                 children: [
-                  const BackButton(
-                    color: Colors.white,
+                  GestureDetector(
+                    onTap: () => Navigator.of(context).pop(),
+                    child: _buildButtonWithBackdrop(
+                      context: context,
+                      theme: theme,
+                      decoration: theme.toolbarButtonStyle ??
+                          BoxDecoration(
+                            border: Border.all(color: theme.borderColor),
+                            borderRadius: BorderRadius.circular(
+                              theme.toolbarButtonBorderRadius,
+                            ),
+                            boxShadow: theme.toolbarButtonShadow != null
+                                ? [theme.toolbarButtonShadow!]
+                                : null,
+                          ),
+                      child: SizedBox(
+                        height: 36,
+                        width: 36,
+                        child: Icon(
+                          Icons.arrow_back,
+                          size: 18,
+                          color: theme.iconColor,
+                        ),
+                      ),
+                    ),
                   ),
                   const Spacer(),
                   GestureDetector(
                     onTap: onPickerTap,
-                    child: Container(
-                      height: 36,
-                      width: 36,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors:
-                              gradientColors[selectedBackgroundGradientIndex],
+                    child: _buildButtonWithBackdrop(
+                      context: context,
+                      theme: theme,
+                      decoration: theme.toolbarButtonStyle ??
+                          BoxDecoration(
+                            border: Border.all(color: theme.borderColor),
+                            borderRadius: BorderRadius.circular(
+                              theme.toolbarButtonBorderRadius,
+                            ),
+                            boxShadow: theme.toolbarButtonShadow != null
+                                ? [theme.toolbarButtonShadow!]
+                                : null,
+                          ),
+                      child: SizedBox(
+                        height: 36,
+                        width: 36,
+                        child: Icon(
+                          Icons.auto_awesome,
+                          size: 18,
+                          color: theme.iconColor,
                         ),
-                        border: Border.all(color: Colors.white),
-                        borderRadius: BorderRadius.circular(32),
-                      ),
-                      child: const Icon(
-                        Icons.auto_awesome,
-                        size: 18,
-                        color: Colors.white,
                       ),
                     ),
                   ),
                   const SizedBox(width: 8),
                   GestureDetector(
                     onTap: onScreenTap,
-                    child: Container(
-                      height: 36,
-                      width: 36,
-                      decoration: BoxDecoration(
-                        color: Colors.black26,
-                        border: Border.all(color: Colors.white),
-                        borderRadius: BorderRadius.circular(32),
-                      ),
-                      child: Center(
-                        child: Text(
-                          'Aa',
-                          style: GoogleFonts.ubuntu(
-                            color: Colors.white,
+                    child: _buildButtonWithBackdrop(
+                      context: context,
+                      theme: theme,
+                      decoration: theme.toolbarButtonStyle ??
+                          BoxDecoration(
+                            border: Border.all(color: theme.borderColor),
+                            borderRadius: BorderRadius.circular(
+                              theme.toolbarButtonBorderRadius,
+                            ),
+                            boxShadow: theme.toolbarButtonShadow != null
+                                ? [theme.toolbarButtonShadow!]
+                                : null,
+                          ),
+                      child: SizedBox(
+                        height: 36,
+                        width: 36,
+                        child: Center(
+                          child: Text(
+                            'Aa',
+                            style: GoogleFonts.ubuntu(
+                              color: theme.iconColor,
+                            ),
                           ),
                         ),
                       ),
                     ),
                   ),
+                  if (onStickerTap != null) ...[
+                    const SizedBox(width: 8),
+                    GestureDetector(
+                      onTap: onStickerTap,
+                      child: _buildButtonWithBackdrop(
+                        context: context,
+                        theme: theme,
+                        decoration: theme.toolbarButtonStyle ??
+                            BoxDecoration(
+                              border: Border.all(color: theme.borderColor),
+                              borderRadius: BorderRadius.circular(
+                                theme.toolbarButtonBorderRadius,
+                              ),
+                              boxShadow: theme.toolbarButtonShadow != null
+                                  ? [theme.toolbarButtonShadow!]
+                                  : null,
+                            ),
+                        child: SizedBox(
+                          height: 36,
+                          width: 36,
+                          child: Icon(
+                            Icons.emoji_emotions,
+                            size: 18,
+                            color: theme.iconColor,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
               ),
       ),

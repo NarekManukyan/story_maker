@@ -1,9 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../constants/font_styles.dart';
-import '../constants/gradients.dart';
 import '../constants/item_type.dart';
+import '../constants/ui_constants.dart';
 import '../extensions/context_extension.dart';
 import '../models/editable_items.dart';
 import '../utils/gradient_util.dart';
@@ -29,6 +30,12 @@ class OverlayItemWidget extends StatelessWidget {
   /// A callback function that is called when a pointer has moved from one location on the screen to another.
   final Function(PointerMoveEvent)? onPointerMove;
 
+  /// The list of font families to use.
+  final List<String> fontList;
+
+  /// The list of gradients to use.
+  final List<List<Color>> gradients;
+
   /// Creates an instance of the widget.
   ///
   /// The editableItem and onItemTap parameters are required and must not be null.
@@ -40,6 +47,8 @@ class OverlayItemWidget extends StatelessWidget {
     this.onPointerDown,
     this.onPointerUp,
     this.onPointerMove,
+    required this.fontList,
+    required this.gradients,
   });
 
   /// Describes the part of the user interface represented by this widget.
@@ -59,14 +68,14 @@ class OverlayItemWidget extends StatelessWidget {
                   editableItem.value,
                   textAlign: TextAlign.center,
                   style: GoogleFonts.getFont(
-                    fontFamilyList[editableItem.fontFamily],
+                    fontList[editableItem.fontFamily],
                   ).copyWith(
                     color: editableItem.color,
                     fontSize: editableItem.fontSize,
                     background: Paint()
-                      ..strokeWidth = 24
+                      ..strokeWidth = TextStrokeConstants.strokeWidth
                       ..shader = createShader(
-                        colors: gradientColors[editableItem.textStyle],
+                        colors: gradients[editableItem.textStyle],
                         width: context.width,
                         height: context.height,
                       )
@@ -82,13 +91,13 @@ class OverlayItemWidget extends StatelessWidget {
                     editableItem.value,
                     textAlign: TextAlign.center,
                     style: GoogleFonts.getFont(
-                      fontFamilyList[editableItem.fontFamily],
+                      fontList[editableItem.fontFamily],
                     ).copyWith(
                       color: editableItem.color,
                       fontSize: editableItem.fontSize,
                       background: Paint()
                         ..shader = createShader(
-                          colors: gradientColors[editableItem.textStyle],
+                          colors: gradients[editableItem.textStyle],
                           width: context.width,
                           height: context.height,
                         ),
@@ -101,6 +110,36 @@ class OverlayItemWidget extends StatelessWidget {
         );
       case ItemType.IMAGE:
         overlayWidget = const Center();
+      case ItemType.STICKER:
+        // Check if the sticker is an image/GIF or emoji
+        final isImageSticker = editableItem.value.contains('/') ||
+            editableItem.value.endsWith('.png') ||
+            editableItem.value.endsWith('.jpg') ||
+            editableItem.value.endsWith('.jpeg') ||
+            editableItem.value.endsWith('.gif') ||
+            editableItem.value.startsWith('http');
+        overlayWidget = Center(
+          child: isImageSticker
+              ? Image.file(
+                  File(editableItem.value),
+                  fit: BoxFit.contain,
+                  width: editableItem.fontSize * 4,
+                  height: editableItem.fontSize * 4,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Icon(
+                      Icons.broken_image,
+                      color: Colors.white,
+                      size: editableItem.fontSize * 2,
+                    );
+                  },
+                )
+              : Text(
+                  editableItem.value,
+                  style: TextStyle(
+                    fontSize: editableItem.fontSize * 2,
+                  ),
+                ),
+        );
     }
 
     return Positioned(

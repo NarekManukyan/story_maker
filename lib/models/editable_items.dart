@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../constants/item_type.dart';
+import '../constants/ui_constants.dart';
 
 /// A class representing an editable item.
 ///
@@ -10,7 +11,10 @@ class EditableItem {
   /// The position of the item on the screen.
   ///
   /// This is represented as an Offset, where the x and y values are the horizontal and vertical distances from the top left corner of the screen.
-  Offset position = const Offset(0.1, 0.4);
+  Offset position = Offset(
+    PositionConstants.defaultTextPositionX,
+    PositionConstants.defaultTextPositionY,
+  );
 
   /// The scale of the item.
   ///
@@ -45,7 +49,7 @@ class EditableItem {
   /// The font size of the text.
   ///
   /// This is a double value that represents the size of the text in logical pixels.
-  double fontSize = 14;
+  double fontSize = FontSizeConstants.defaultValue;
 
   /// The font family of the text.
   ///

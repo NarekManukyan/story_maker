@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../constants/ui_constants.dart';
 import '../extensions/context_extension.dart';
 import '../models/editable_items.dart';
 
@@ -53,13 +54,19 @@ class RemoveWidget extends StatelessWidget {
                     child: Center(
                       child: AnimatedContainer(
                         duration: animationsDuration,
-                        height: !isDeletePosition ? 60.0 : 72,
-                        width: !isDeletePosition ? 60.0 : 72,
+                        height: !isDeletePosition
+                            ? RemoveWidgetConstants.normalSize
+                            : RemoveWidgetConstants.expandedSize,
+                        width: !isDeletePosition
+                            ? RemoveWidgetConstants.normalSize
+                            : RemoveWidgetConstants.expandedSize,
                         decoration: BoxDecoration(
                           color: Colors.black.withOpacity(0.5),
                           borderRadius: BorderRadius.all(
                             Radius.circular(
-                              !isDeletePosition ? 30 : 38,
+                              !isDeletePosition
+                                  ? RemoveWidgetConstants.normalBorderRadius
+                                  : RemoveWidgetConstants.expandedBorderRadius,
                             ),
                           ),
                         ),

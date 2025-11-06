@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import '../constants/gradients.dart';
 import '../extensions/context_extension.dart';
 
 /// A widget for selecting a background gradient.
@@ -34,6 +33,9 @@ class BackgroundGradientSelectorWidget extends StatelessWidget {
   /// The index of the currently selected gradient.
   final int selectedGradientIndex;
 
+  /// The list of gradients to display.
+  final List<List<Color>> gradients;
+
   /// Determines whether the widget is visible.
   ///
   /// The widget is visible if the background color picker is selected, and the widget is not in text input mode or in action.
@@ -53,6 +55,7 @@ class BackgroundGradientSelectorWidget extends StatelessWidget {
     required this.onPageChanged,
     required this.onItemTap,
     required this.selectedGradientIndex,
+    required this.gradients,
   });
 
   /// Describes the part of the user interface represented by this widget.
@@ -73,7 +76,7 @@ class BackgroundGradientSelectorWidget extends StatelessWidget {
           alignment: Alignment.center,
           child: PageView.builder(
             controller: gradientsPageController,
-            itemCount: gradientColors.length,
+            itemCount: gradients.length,
             onPageChanged: onPageChanged,
             physics: const BouncingScrollPhysics(),
             allowImplicitScrolling: true,
@@ -89,7 +92,7 @@ class BackgroundGradientSelectorWidget extends StatelessWidget {
                     gradient: LinearGradient(
                       begin: FractionalOffset.topLeft,
                       end: FractionalOffset.centerRight,
-                      colors: gradientColors[index],
+                      colors: gradients[index],
                     ),
                     borderRadius: BorderRadius.all(
                       Radius.circular(context.width * .175),
@@ -106,7 +109,7 @@ class BackgroundGradientSelectorWidget extends StatelessWidget {
                               CupertinoIcons.checkmark_alt,
                               color: selectedGradientIndex == 0
                                   ? Colors.white
-                                  : gradientColors[selectedGradientIndex]
+                                  : gradients[selectedGradientIndex]
                                               .last
                                               .computeLuminance() >
                                           0.5

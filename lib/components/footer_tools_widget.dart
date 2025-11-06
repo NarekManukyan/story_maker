@@ -1,8 +1,12 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../extensions/context_extension.dart';
+import '../theme/story_maker_theme.dart';
+import '../theme/story_maker_theme_provider.dart';
 
 /// A widget for displaying footer tools.
 ///
@@ -19,6 +23,12 @@ class FooterToolsWidget extends StatelessWidget {
   /// Indicates whether the widget is in loading state.
   final bool isLoading;
 
+  /// Custom widget builder for the done button.
+  /// If provided, this will be used instead of the default button.
+  final Widget Function(
+          StoryMakerTheme theme, AsyncCallback onDone, bool isLoading)?
+      doneButtonBuilder;
+
   /// Creates an instance of the widget.
   ///
   /// The onDone parameter is required and must not be null.
@@ -28,6 +38,7 @@ class FooterToolsWidget extends StatelessWidget {
     required this.onDone,
     this.doneButtonChild,
     this.isLoading = false,
+    this.doneButtonBuilder,
   });
 
   /// Describes the part of the user interface represented by this widget.
@@ -35,55 +46,81 @@ class FooterToolsWidget extends StatelessWidget {
   /// The framework calls this method when this widget is inserted into the tree in a given BuildContext and when the dependencies of this widget change.
   @override
   Widget build(BuildContext context) {
+    final theme = StoryMakerThemeProvider.of(context);
     return Container(
       height: context.bottomPadding + kToolbarHeight,
       alignment: Alignment.topCenter,
-      child: Padding(
-        padding: const EdgeInsets.only(top: 4, right: 16),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            ElevatedButton(
-              onPressed: onDone,
-              style: ButtonStyle(
-                shape: MaterialStateProperty.all(
-                  const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(18),
-                    ),
-                  ),
-                ),
-                shadowColor: MaterialStateProperty.all(Colors.white),
-                backgroundColor: MaterialStateProperty.all(Colors.white),
+      child: ClipRect(
+        child: BackdropFilter(
+          filter: ui.ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.bottomCenter,
+                end: Alignment.topCenter,
+                colors: [
+                  Colors.black.withOpacity(0.3),
+                  Colors.transparent,
+                ],
               ),
-              child: isLoading
-                  ? const CupertinoActivityIndicator()
-                  : doneButtonChild ??
-                      const Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Row(
-                            children: [
-                              SizedBox(width: 4),
-                              Text(
-                                'Add to story',
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 12,
+            ),
+            child: Padding(
+              padding: const EdgeInsets.only(top: 4, right: 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  if (doneButtonBuilder != null)
+                    doneButtonBuilder!(theme, onDone, isLoading)
+                  else
+                    ElevatedButton(
+                      onPressed: isLoading ? null : onDone,
+                      style: theme.doneButtonStyle ??
+                          ButtonStyle(
+                            shape: WidgetStateProperty.all(
+                              RoundedRectangleBorder(
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(theme.buttonBorderRadius),
                                 ),
                               ),
-                              SizedBox(width: 4),
-                              Icon(
-                                CupertinoIcons.forward,
-                                color: Colors.black,
-                                size: 18,
-                              ),
-                            ],
+                            ),
+                            shadowColor: WidgetStateProperty.all(
+                              theme.buttonShadow?.color ?? theme.buttonColor,
+                            ),
+                            backgroundColor:
+                                WidgetStateProperty.all(theme.buttonColor),
+                            elevation: WidgetStateProperty.all(
+                              theme.buttonShadow != null ? 4 : 0,
+                            ),
                           ),
-                        ],
-                      ),
+                      child: isLoading
+                          ? CupertinoActivityIndicator(
+                              color: theme.buttonTextColor,
+                            )
+                          : doneButtonChild ??
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    'Add to story',
+                                    style: TextStyle(
+                                      color: theme.buttonTextColor,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Icon(
+                                    CupertinoIcons.forward,
+                                    color: theme.buttonTextColor,
+                                    size: 18,
+                                  ),
+                                ],
+                              ),
+                    ),
+                ],
+              ),
             ),
-          ],
+          ),
         ),
       ),
     );
