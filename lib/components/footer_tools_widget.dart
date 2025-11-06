@@ -26,8 +26,10 @@ class FooterToolsWidget extends StatelessWidget {
   /// Custom widget builder for the done button.
   /// If provided, this will be used instead of the default button.
   final Widget Function(
-          StoryMakerTheme theme, AsyncCallback onDone, bool isLoading)?
-      doneButtonBuilder;
+    StoryMakerTheme theme,
+    AsyncCallback onDone,
+    bool isLoading,
+  )? doneButtonBuilder;
 
   /// Creates an instance of the widget.
   ///

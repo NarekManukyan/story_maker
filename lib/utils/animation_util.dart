@@ -100,7 +100,7 @@ Widget createAnimatedText({
       return RotationTransition(
         turns: Tween<double>(begin: 0.0, end: 1.0).animate(
           CurvedAnimation(
-            parent: AlwaysStoppedAnimation(1.0),
+            parent: const AlwaysStoppedAnimation(1.0),
             curve: Curves.easeOut,
           ),
         ),
@@ -108,4 +108,5 @@ Widget createAnimatedText({
       );
   }
 }
+
 

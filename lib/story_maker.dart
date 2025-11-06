@@ -639,6 +639,7 @@ class _StoryMakerState extends State<StoryMaker> {
   ///
   /// This method is called when the user taps on the color filter button.
   /// It toggles the [_isColorFilterPickerSelected] flag to show or hide the color filter picker.
+  // ignore: unused_element
   void _onToggleColorFilterPicker() {
     setState(
       () {
@@ -655,6 +656,7 @@ class _StoryMakerState extends State<StoryMaker> {
   ///
   /// This method is called when the user selects a color filter.
   /// It updates the [_selectedColorFilter] with the new filter.
+  // ignore: unused_element
   void _onColorFilterSelected(ColorFilterType filter) {
     HapticFeedback.lightImpact();
 
