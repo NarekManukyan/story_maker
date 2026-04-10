@@ -50,8 +50,4 @@ const List<String> defaultStickers = [
   '🎺',
   '🎻',
   '🎷',
-  '🎪',
-  '🎭',
-  '🎨',
-  '🎬',
 ];

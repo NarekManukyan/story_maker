@@ -25,7 +25,6 @@ const List<List<Color>> gradientColors = [
   [Color(0xFF1488CC), Color(0xFF2B32B2)],
   [Color(0xFFec008c), Color(0xFFfc6767)],
   [Color(0xFFcc2b5e), Color(0xFF753a88)],
-  [Color(0xFF2193b0), Color(0xFF6dd5ed)],
   [Color(0xFF2b5876), Color(0xFF4e4376)],
   [Color(0xFFff6e7f), Color(0xFFbfe9ff)],
   [Color(0xFFe52d27), Color(0xFFb31217)],

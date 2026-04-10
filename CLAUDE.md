@@ -13,7 +13,11 @@
 ```
 lib/
 ├── story_maker.dart              # Main entry point: StoryMaker StatefulWidget + exports
-├── components/                   # Reusable UI widgets
+├── controller/                   # State management
+│   ├── controller.dart           # Barrel export
+│   └── src/
+│       └── story_maker_controller.dart  # ValueNotifier-based state controller
+├── components/                   # Reusable UI widgets (all StatelessWidget)
 │   ├── components.dart           # Barrel export
 │   └── src/
 │       ├── background_gradient_selector_widget.dart
@@ -29,17 +33,17 @@ lib/
 ├── constants/                    # Enums, palettes, gradients, stickers
 │   ├── constants.dart            # Barrel export
 │   └── src/
-│       ├── color_filters.dart    # ColorFilterType enum + filter matrices
+│       ├── color_filters.dart    # ColorFilterType enum with matrix/displayName methods
 │       ├── font_colors.dart      # Default text colors
 │       ├── font_styles.dart      # Default Google Fonts list
-│       ├── gradients.dart        # 60+ gradient presets
+│       ├── gradients.dart        # 50+ gradient presets
 │       ├── item_type.dart        # ItemType enum (IMAGE, TEXT, STICKER)
-│       ├── stickers.dart         # 50+ emoji stickers
+│       ├── stickers.dart         # 48 emoji stickers
 │       └── ui_constants.dart     # UI magic numbers
 ├── models/                       # Data models
 │   ├── models.dart               # Barrel export
 │   └── src/
-│       ├── editable_items.dart   # EditableItem (position, scale, rotation, text)
+│       ├── editable_items.dart   # EditableItem (immutable, with copyWith)
 │       └── sticker_item.dart     # StickerItem (emoji or image/GIF)
 ├── theme/                        # Theming system
 │   ├── theme.dart                # Barrel export
@@ -91,8 +95,35 @@ Every directory under `lib/` has a barrel file (e.g., `components/components.dar
 
 ### State Management
 
-- **Local state** via `StatefulWidget` + `setState` — no external state management packages
+- **ValueNotifier + ValueListenableBuilder** — all mutable state lives in `StoryMakerController` as individual `ValueNotifier` instances. The main widget uses `ValueListenableBuilder` to scope rebuilds to only the widgets that depend on each piece of state.
+- **No setState** — the codebase has zero `setState` calls. All state mutations go through `ValueNotifier.value = ...` on the controller.
 - **Theme propagation** via `InheritedWidget` (`StoryMakerThemeProvider`)
+
+### StoryMakerController
+
+`lib/controller/src/story_maker_controller.dart` owns all mutable state:
+
+| ValueNotifier | Type | Purpose |
+|---|---|---|
+| `stackData` | `List<EditableItem>` | All items on the canvas |
+| `activeItem` | `EditableItem?` | Currently selected item |
+| `isTextInput` | `bool` | Text editing mode |
+| `isDeletePosition` | `bool` | Item over delete zone |
+| `selectedTextColor` | `Color` | Current text color |
+| `selectedTextBackgroundGradient` | `int` | Text background gradient index |
+| `selectedFontSize` | `double` | Font size |
+| `selectedFontFamily` | `int` | Font family index |
+| `isColorPickerSelected` | `bool` | Text color picker visibility |
+| `isBackgroundColorPickerSelected` | `bool` | Background gradient picker visibility |
+| `isStickerPickerSelected` | `bool` | Sticker picker visibility |
+| `isColorFilterPickerSelected` | `bool` | Color filter picker visibility |
+| `selectedColorFilter` | `ColorFilterType` | Active color filter |
+| `selectedBackgroundGradient` | `int` | Background gradient index |
+| `isLoading` | `bool` | Export loading state |
+| `displayedStyleName` | `String?` | Temporary style name overlay |
+| `displayedFilterName` | `String?` | Temporary filter name overlay |
+
+Non-reactive state (gesture tracking: `_initPos`, `_currentPos`, `_currentScale`, `_currentRotation`, `_inAction`) stays as plain fields since they don't drive UI rebuilds.
 
 ### Main Entry Point
 
@@ -102,9 +133,27 @@ Every directory under `lib/` has a barrel file (e.g., `components/components.dar
 - `customFontList`, `customTextColors`, `customGradients`, `customStickers` — override defaults
 - `doneButtonBuilder` — custom done button with theme, callback, and loading state
 
+### Immutable Models
+
+`EditableItem` is `@immutable` with `const` constructor, `copyWith()`, and `==`/`hashCode`. To update an item, create a new copy and replace it in the list:
+```dart
+final updated = item.copyWith(position: newPos);
+final items = List<EditableItem>.from(stackData.value);
+items[idx] = updated;
+stackData.value = items;
+```
+
 ### Public API Surface
 
-Exported classes: `StoryMaker`, `EditableItem`, `StickerItem`, `StoryMakerTheme`, `StoryMakerThemeProvider`, `ColorFilterType`, `ItemType`
+Exported classes: `StoryMaker`, `StoryMakerController`, `EditableItem`, `StickerItem`, `StoryMakerTheme`, `StoryMakerThemeProvider`, `ColorFilterType`, `ItemType`
+
+### ColorFilterType Enum
+
+Filters expose their data via enum methods — no free functions needed:
+```dart
+filter.matrix       // List<double> color matrix
+filter.displayName  // Human-readable name
+```
 
 ## Code Style & Conventions
 
@@ -133,6 +182,7 @@ These lint violations are treated as **errors** and will fail analysis:
 - No code generation — all models are hand-written
 - Avoid `dynamic` types (`avoid_annotating_with_dynamic`)
 - Use `omit_local_variable_types` — let Dart infer local types
+- All component widgets are `StatelessWidget` — state flows in via constructor params from `ValueListenableBuilder`
 
 ## Dependencies
 
